@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🌊 Gezeiten · Playa del Inglés</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+   body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: radial-gradient(circle at top, #e6f5ff 0%, #d9f0ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+.card {
+  background: white;
+  padding: 1.3rem 1.8rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 90%;           /* 🔹 mehr Rand links/rechts */
+  max-width: 500px;     /* 🔹 etwas schmaler für mobile Optik */
+  text-align: center;
+}
+
+footer {
+  margin-top: 0.8rem;
+  font-size: 0.7rem;     /* 🔹 kleiner */
+  color: #888;           /* etwas heller für dezente Optik */
+  line-height: 1.2;
+  white-space: nowrap;   /* 🔹 bleibt in einer Zeile */
+}
+
+footer span {
+  white-space: nowrap;
+}
+
+
+    h1 {
+      font-size: 1.5rem;
+      margin: 0.2rem 0 0.3rem 0;
+    }
+
+    h2 {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 1rem;
+    }
+
+    .tide-icon {
+      font-size: 2rem;
+      margin-bottom: 0.3rem;
+    }
+
+    .status {
+      font-weight: 700;
+      margin-bottom: 0.3rem;
+    }
+
+    .status.up { color: #2e7d32; }
+    .status.down { color: #d32f2f; }
+
+    .next {
+      color: #000;
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+
+    /* 🔹 Buttons moderner, mit 3D Effekt & sanftem Hover */
+    button {
+      background: linear-gradient(180deg, #5b8df7, #446ef3);
+      border: none;
+      border-radius: 10px;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: 600;
+      color: white;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      transition: transform 0.1s ease, box-shadow 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+    }
+
+    button.active {
+      background: linear-gradient(180deg, #315cf0, #284ce0);
+      box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+    }
+
+    /* 🔹 Dropdown modernisiert, mit Poppins-Schrift */
+    select {
+      font-family: "Poppins", sans-serif;
+      background: white;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 0.45rem 0.8rem;
+      font-size: 0.9rem;
+      text-align: center;
+      min-width: 210px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      transition: border-color 0.2s ease;
+    }
+
+    select:focus {
+      outline: none;
+      border-color: #4c6ef5;
+      box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: center;
+      margin-top: 1rem;
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #666;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #ddd;
+      font-weight: 600;
+    }
+
+    td {
+      padding: 0.4rem 0;
+    }
+
+    /* 🔹 Dezente Zeilenfärbung */
+    tbody tr:nth-child(odd) {
+      background-color: #f9fbff;
+    }
+
+    tr.low {
+      background-color: #ecf4ff !important; /* helles Blau bei Niedrigwasser */
+    }
+
+    tr.low td {
+      color: #d32f2f;
+      font-weight: 600;
+    }
+
+    tr.high td {
+      color: #2e7d32;
+      font-weight: 600;
+    }
+
+    footer {
+      margin-top: 1rem;
+      font-size: 0.75rem;
+      color: #777;
+    }
+
+    footer span { white-space: nowrap; }
+
+    .error {
+      color: #d32f2f;
+      font-weight: 600;
+    }
+
+    @media (min-width: 768px) {
+      .card {
+        width: 60%;
+        max-width: 560px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>🌊 Gezeiten · Playa del Inglés</h1>
+    <h2 id="date-display">–</h2>
+
+    <div class="tide-icon" id="tide-icon">⬆️</div>
+    <div class="status" id="tide-status">Das Wasser steigt</div>
+    <div class="next" id="next-high">nächstes Hochwasser um –:– Uhr</div>
+
+    <div class="buttons">
+      <button id="btn-today" class="active">Heute</button>
+      <button id="btn-tomorrow">Morgen</button>
+      <button id="btn-after">Übermorgen</button>
+      <select id="date-select"></select>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Zeit</th>
+          <th>Typ</th>
+          <th>Höhe (m)</th>
+        </tr>
+      </thead>
+      <tbody id="tide-table"></tbody>
+    </table>
+
+    <footer id="footer-text">
+      Quelle: tide-forecast.com <span>·</span> Aktualisiert: –
+    </footer>
+  </div>
+
+  <script>
+    let activeIndex = 0;
+
+    async function loadTideData() {
+      try {
+        const basePath = window.location.pathname.replace(/\/$/, "");
+        const response = await fetch(`${basePath}/data/latest.json`);
+        if (!response.ok) throw new Error("Fehler beim Laden der JSON-Datei.");
+        const data = await response.json();
+        if (!data.days?.length) throw new Error("Keine Daten gefunden.");
+        window.tideData = data.days;
+        const todayIndex = findTodayIndex(data.days);
+        populateDateSelect(data.days);
+        showDay(todayIndex);
+      } catch (err) {
+        document.getElementById("tide-table").innerHTML =
+          `<tr><td colspan="3" class="error">❌ ${err.message}</td></tr>`;
+      }
+    }
+
+    function findTodayIndex(days) {
+      const todayStr = new Date().toISOString().split("T")[0];
+      const index = days.findIndex((d) => d.date === todayStr);
+      return index >= 0 ? index : 0;
+    }
+
+    function populateDateSelect(days) {
+      const select = document.getElementById("date-select");
+      select.innerHTML = "";
+      days.forEach((d) => {
+        const dateObj = new Date(d.date);
+        const option = document.createElement("option");
+        option.value = d.date;
+        option.textContent = dateObj.toLocaleDateString("de-DE", {
+          weekday: "long",
+          day: "2-digit",
+          month: "2-digit",
+          year: "numeric",
+        });
+        select.appendChild(option);
+      });
+      select.addEventListener("change", () => {
+        const index = days.findIndex((d) => d.date === select.value);
+        if (index !== -1) showDay(index);
+      });
+    }
+
+    function formatTime(t) {
+      const [h, m] = t.split(":").map(Number);
+      return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+    }
+
+    function showDay(index) {
+      activeIndex = index;
+      updateButtons();
+
+      const day = window.tideData[index];
+      const dateObj = new Date(day.date);
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString("de-DE", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+
+      document.getElementById("date-display").textContent =
+        dateObj.toLocaleDateString("de-DE", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        }) + `, ${timeStr} Uhr`;
+
+      document.getElementById("date-select").value = day.date;
+
+      const tbody = document.getElementById("tide-table");
+      tbody.innerHTML = "";
+      day.tides.forEach((t) => {
+        const tr = document.createElement("tr");
+        tr.classList.add(t.typ === "Niedrigwasser" ? "low" : "high");
+        tr.innerHTML = `
+          <td>${formatTime(t.zeit)}</td>
+          <td>${t.typ}</td>
+          <td>${t.hoehe_m.toFixed(2)}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+
+      updateStatus(day);
+    }
+
+    function updateButtons() {
+      const todayIndex = findTodayIndex(window.tideData);
+      document.getElementById("btn-today").classList.toggle("active", activeIndex === todayIndex);
+      document.getElementById("btn-tomorrow").classList.toggle("active", activeIndex === todayIndex + 1);
+      document.getElementById("btn-after").classList.toggle("active", activeIndex === todayIndex + 2);
+    }
+
+    function updateStatus(day) {
+      const now = new Date();
+      const nowMinutes = now.getHours() * 60 + now.getMinutes();
+      const todayISO = new Date().toISOString().split("T")[0];
+      const selectedDateISO = day.date;
+      const allDays = window.tideData;
+      const idx = allDays.findIndex((d) => d.date === selectedDateISO);
+
+      const toMinutes = (t) => {
+        const [h, m] = t.split(":").map(Number);
+        return h * 60 + m;
+      };
+
+      let lastTide = null;
+      let nextTide = null;
+      for (const tide of day.tides) {
+        const mins = toMinutes(tide.zeit);
+        if (mins <= nowMinutes) lastTide = tide;
+        if (mins > nowMinutes && !nextTide) nextTide = tide;
+      }
+      if (!nextTide && allDays[idx + 1]) nextTide = allDays[idx + 1].tides[0];
+
+      let trendUp;
+      let trendText;
+
+      if (selectedDateISO === todayISO) {
+        trendUp = nextTide?.typ === "Hochwasser";
+        trendText = trendUp ? "Das Wasser steigt gerade" : "Das Wasser fällt gerade";
+      } else {
+        trendUp = (lastTide?.typ === "Niedrigwasser") || (nextTide?.typ === "Hochwasser");
+        trendText = trendUp ? "Das Wasser steigt dann" : "Das Wasser fällt dann";
+      }
+
+      document.getElementById("tide-status").textContent = trendText;
+      document.getElementById("tide-status").className = trendUp ? "status up" : "status down";
+      document.getElementById("tide-icon").textContent = trendUp ? "⬆️" : "⬇️";
+      if (nextTide) {
+        document.getElementById("next-high").textContent =
+          `nächstes ${nextTide.typ} um ${formatTime(nextTide.zeit)} Uhr`;
+      }
+
+      const updated = new Date().toLocaleString("de-DE", {
+        timeZone: "Atlantic/Canary",
+        hour: "2-digit",
+        minute: "2-digit",
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+      document.getElementById("footer-text").innerHTML =
+        `Quelle: tide-forecast.com <span>·</span> Aktualisiert: ${updated} WET`;
+    }
+
+    document.getElementById("btn-today").onclick = () => showDay(findTodayIndex(window.tideData));
+    document.getElementById("btn-tomorrow").onclick = () => showDay(findTodayIndex(window.tideData) + 1);
+    document.getElementById("btn-after").onclick = () => showDay(findTodayIndex(window.tideData) + 2);
+
+    loadTideData();
+  </script>
+</body>
+</html>
