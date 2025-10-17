@@ -46,26 +46,44 @@
     </div>
 
     <!-- Webcam -->
-    <div class="webcam">
-      <iframe
-        src="https://in2thebeach.es/callbacks/camviewer_ext2.php?id=13"
-        scrolling="no"
-        width="100%"
-        height="auto"
-        style="aspect-ratio: 16 / 9; border: none; border-radius: 15px;"
-        allowfullscreen
-      ></iframe>
-      <div class="webcam-link">
-        <a
-          href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          🌴 Webcam: Playa del Inglés – Curva
-        </a>
-      </div>
-    </div>
+<div class="webcam">
+  <iframe
+    id="webcam-frame"
+    src="https://in2thebeach.es/callbacks/camviewer_ext2.php?id=13"
+    scrolling="no"
+    allowfullscreen
+  ></iframe>
+  <div class="webcam-fallback" id="webcam-fallback" style="display:none;">
+    <p>📸 Webcam kann auf diesem Gerät nicht eingebettet werden.</p>
+    <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/" target="_blank">
+      👉 Hier direkt öffnen
+    </a>
   </div>
+  <div class="webcam-link">
+    <a
+      href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      🌴 Webcam: Playa del Inglés – Curva
+    </a>
+  </div>
+</div>
+
+<script>
+  // Fallback aktivieren, wenn iframe nicht lädt (z. B. auf Handy)
+  const iframe = document.getElementById("webcam-frame");
+  const fallback = document.getElementById("webcam-fallback");
+  let loaded = false;
+  iframe.onload = () => (loaded = true);
+  setTimeout(() => {
+    if (!loaded) {
+      iframe.style.display = "none";
+      fallback.style.display = "block";
+    }
+  }, 4000);
+</script>
+
 
   <script>
     /* Dein JavaScript bleibt exakt gleich – keine Änderung nötig */
