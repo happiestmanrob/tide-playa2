@@ -9,7 +9,7 @@ body {
   padding: 1.5rem 0;
 }
 
-/* ========== Layout für Karte + Webcam ========== */
+
 /* ===================== Webcam optimiert ===================== */
 .webcam {
   flex: 1.6;
@@ -52,20 +52,29 @@ body {
     flex-direction: row;
     align-items: stretch;
     justify-content: center;
-    gap: 1.2rem;
+    gap: 0.8rem; /* 🔹 Lücke zwischen Tabelle und Webcam enger */
+    padding: 0 2.5rem; /* 🔹 etwas Platz links & rechts vom Gesamtlayout */
   }
 
   .tide-table {
     flex: 1;
     max-width: 520px;
-    transform: translateX(-1.5rem);
+    margin-left: 1.5rem; /* 🔹 Platz links */
+    transform: none; /* vorherige Verschiebung entfernen */
   }
 
   .webcam {
-    flex: 1.7; /* etwas breiter */
-    max-width: 1100px; /* mehr Platz auf breiten Screens */
+    flex: 1.7;
+    max-width: 1100px;
+    margin-right: 1.5rem; /* 🔹 gleichmäßiger Abstand rechts */
+  }
+
+  .webcam iframe {
+    height: 100%;
+    border-radius: 20px;
   }
 }
+
 
 /* ===================== Mobile / Tablet Hochformat ===================== */
 @media (max-width: 899px) {
