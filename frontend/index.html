@@ -46,56 +46,45 @@
     </div>
 
    
-<!-- Webcam Playa del Inglés -->
-<div class="webcam">
-  <video id="beachcam" 
-         controls 
-         autoplay 
-         muted 
-         playsinline 
-         width="1024" 
-         height="576"
-         style="border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.18); background:#000;">
-    Dein Browser unterstützt keine Video-Wiedergabe.
-  </video>
 
-  <div class="webcam-link">
-    <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/"
-       target="_blank" rel="noopener noreferrer">
-      🌴 Webcam: Playa del Inglés – Curva
-    </a>
+    <!-- WEBCAM -->
+  </div>
+
+  <div class="webcam">
+    <video id="beachcam"
+           controls
+           autoplay
+           muted
+           playsinline
+           width="960"
+           height="540"
+           style="border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.18); background:#000;">
+      Dein Browser unterstützt keine Video-Wiedergabe.
+    </video>
+    <div class="webcam-link">
+      <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/"
+         target="_blank" rel="noopener noreferrer">
+        🌴 Webcam: Playa del Inglés – Curva
+      </a>
+    </div>
   </div>
 </div>
 
-<!-- hls.js einbinden -->
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-  const video = document.getElementById('beachcam');
-  const videoSrc = 'https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8';
+const video = document.getElementById('beachcam');
+const videoSrc = 'https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8';
 
-  if (video.canPlayType('application/vnd.apple.mpegurl')) {
-    // ✅ Safari & iOS (native Unterstützung)
-    video.src = videoSrc;
-  } else if (Hls.isSupported()) {
-    // ✅ Chrome, Edge, Firefox usw. (über hls.js)
-    const hls = new Hls({
-      maxBufferLength: 10,
-      liveSyncDuration: 3,
-      manifestLoadingTimeOut: 10000
-    });
-    hls.loadSource(videoSrc);
-    hls.attachMedia(video);
-    hls.on(Hls.Events.MANIFEST_PARSED, () => {
-      video.play().catch(err => console.log('Autoplay blockiert:', err));
-    });
-  } else {
-    // ❌ Kein Support
-    video.outerHTML = `
-      <p>Webcam kann nicht angezeigt werden. 
-      👉 <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/" target="_blank">
-      Hier direkt öffnen</a></p>`;
-  }
+if (video.canPlayType('application/vnd.apple.mpegurl')) {
+  video.src = videoSrc;
+} else if (Hls.isSupported()) {
+  const hls = new Hls();
+  hls.loadSource(videoSrc);
+  hls.attachMedia(video);
+  hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+}
 </script>
+
 
 
 
