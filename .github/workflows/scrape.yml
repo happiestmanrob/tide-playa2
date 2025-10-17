@@ -26,7 +26,7 @@ jobs:
       - name: 🌊 Run tide fetch script with Puppeteer
         run: |
           echo "🌊 Starte Puppeteer-Scraper..."
-          node scripts/fetch.js
+          node skripts/fetch.js
 
       - name: 🗂 Copy frontend & data to public
         run: |
