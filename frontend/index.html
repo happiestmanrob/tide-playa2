@@ -8,7 +8,7 @@
   <!-- Schriftarten -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Neue externe CSS-Datei -->
+  <!-- Externe CSS -->
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
@@ -45,87 +45,52 @@
       </footer>
     </div>
 
-   
+    <!-- Webcam -->
+    <div class="webcam">
+      <video id="liveCam" 
+             controls 
+             muted 
+             playsinline 
+             preload="auto"
+             style="border-radius:20px; width:100%; max-width:1200px; background:#000; box-shadow:0 8px 25px rgba(0,0,0,0.18);">
+      </video>
 
-    <!-- WEBCAM -->
-
- <div class="webcam">
-  <video id="liveCam" 
-         controls 
-         muted 
-         playsinline 
-         preload="auto"
-         style="border-radius:20px; width:100%; max-width:1200px; background:#000; box-shadow:0 8px 25px rgba(0,0,0,0.18);">
-  </video>
-
-  <div class="webcam-link">
-    🌴 <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/" 
-          target="_blank" rel="noopener noreferrer">
-      Webcam: Playa del Inglés – Curva
-    </a>
+      <div class="webcam-link">
+        🌴 <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/" 
+              target="_blank" rel="noopener noreferrer">
+          Webcam: Playa del Inglés – Curva
+        </a>
+      </div>
+    </div>
   </div>
-</div>
 
-<script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
-<script>
-const video = document.getElementById('liveCam');
-const streamUrl = "https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8";
-
-function isSafari() {
-  return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-}
-
-// Safari (iPhone/iPad) kann HLS nativ
-if (isSafari() && video.canPlayType('application/vnd.apple.mpegurl')) {
-  video.src = streamUrl;
-  video.addEventListener('loadedmetadata', () => video.play());
-} 
-// Alle anderen Browser mit hls.js
-else if (Hls.isSupported()) {
-  const hls = new Hls({ liveDurationInfinity: true });
-  hls.loadSource(streamUrl);
-  hls.attachMedia(video);
-  hls.on(Hls.Events.MANIFEST_PARSED, () => {
-    video.play().catch(() => {
-      // Falls Autoplay blockiert ist, zeigen wir einen Play-Hinweis
-      console.log('Autoplay blockiert – Nutzer muss Play drücken.');
-    });
-  });
-} 
-else {
-  video.outerHTML = '<p>⚠️ Dein Browser unterstützt diesen Livestream leider nicht.</p>';
-}
-</script>
-
-
-
-
-
-
-
-
-    
-
-
-<script>
-const iframe = document.getElementById("webcam-frame");
-const fallback = document.getElementById("webcam-fallback");
-let loaded = false;
-
-iframe.onload = () => (loaded = true);
-
-setTimeout(() => {
-  if (!loaded) {
-    iframe.style.display = "none";
-    fallback.style.display = "block";
-  }
-}, 5000);
-</script>
-
-
-
+  <!-- HLS Player -->
+  <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
-    /* Dein JavaScript bleibt exakt gleich – keine Änderung nötig */
+  const video = document.getElementById('liveCam');
+  const streamUrl = "https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8";
+
+  function isSafari() {
+    return /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  }
+
+  if (isSafari() && video.canPlayType('application/vnd.apple.mpegurl')) {
+    video.src = streamUrl;
+    video.addEventListener('loadedmetadata', () => video.play());
+  } else if (Hls.isSupported()) {
+    const hls = new Hls({ liveDurationInfinity: true });
+    hls.loadSource(streamUrl);
+    hls.attachMedia(video);
+    hls.on(Hls.Events.MANIFEST_PARSED, () => {
+      video.play().catch(() => console.log('Autoplay blockiert – bitte manuell starten.'));
+    });
+  } else {
+    video.outerHTML = '<p>⚠️ Dein Browser unterstützt diesen Livestream leider nicht.</p>';
+  }
+  </script>
+
+  <!-- Gezeitenlogik -->
+  <script>
     let activeIndex = 0;
 
     async function loadTideData() {
@@ -222,11 +187,13 @@ setTimeout(() => {
       document.getElementById("btn-after").classList.toggle("active", activeIndex === todayIndex + 2);
     }
 
+    // ✅ Hier ist der neue, korrekte Abschnitt
     function updateStatus(day) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       const todayISO = new Date().toISOString().split("T")[0];
       const selectedDateISO = day.date;
+
       const allDays = window.tideData;
       const idx = allDays.findIndex((d) => d.date === selectedDateISO);
 
@@ -244,20 +211,16 @@ setTimeout(() => {
       }
       if (!nextTide && allDays[idx + 1]) nextTide = allDays[idx + 1].tides[0];
 
-      let trendUp;
-      let trendText;
-
-      if (selectedDateISO === todayISO) {
-        trendUp = nextTide?.typ === "Hochwasser";
-        trendText = trendUp ? "Das Wasser steigt gerade" : "Das Wasser fällt gerade";
-      } else {
-        trendUp = (lastTide?.typ === "Niedrigwasser") || (nextTide?.typ === "Hochwasser");
-        trendText = trendUp ? "Das Wasser steigt dann" : "Das Wasser fällt dann";
-      }
+      const sameDay = todayISO === selectedDateISO;
+      const trendUp = nextTide?.typ === "Hochwasser";
+      const trendText = sameDay
+        ? trendUp ? "Das Wasser steigt gerade" : "Das Wasser fällt gerade"
+        : trendUp ? "Das Wasser steigt dann" : "Das Wasser fällt dann";
 
       document.getElementById("tide-status").textContent = trendText;
       document.getElementById("tide-status").className = trendUp ? "status up" : "status down";
       document.getElementById("tide-icon").textContent = trendUp ? "⬆️" : "⬇️";
+
       if (nextTide) {
         document.getElementById("next-high").textContent =
           `nächstes ${nextTide.typ} um ${formatTime(nextTide.zeit)} Uhr`;
