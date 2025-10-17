@@ -1,3 +1,4 @@
+/* ===== Allgemeines Layout ===== */
 body {
   font-family: "Inter", system-ui, sans-serif;
   background: radial-gradient(circle at top, #e6f5ff 0%, #d9f0ff 100%);
@@ -9,89 +10,30 @@ body {
   padding: 1.5rem 0;
 }
 
-
-/* ===================== Webcam optimiert ===================== */
-.webcam {
-  flex: 1.6;
-  width: 100%;
-  max-width: 1024px; /* passt exakt zum Format */
-  text-align: center;
+/* ===== Container für Karte + Webcam ===== */
+.tide-container {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  align-items: center;
+  justify-content: center;
+  width: 95%;
+  max-width: 1300px;
+  margin: 0 auto;
+  gap: 1.2rem;
 }
 
-.webcam iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;        /* exaktes Verhältnis */
-  border: none;
+/* ===== Gezeiten-Karte ===== */
+.card {
+  background: white;
+  padding: 1.3rem 1.8rem;
   border-radius: 20px;
-  background: #000;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
-  object-fit: cover;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 520px;
+  text-align: center;
+  flex: 1;
 }
 
-/* Link unter der Webcam */
-.webcam-link {
-  margin-top: 0.6rem;
-  font-size: 0.9rem;
-}
-
-.webcam-link a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.webcam-link a:hover {
-  text-decoration: underline;
-}
-
-/* ===================== Desktop / Querformat ===================== */
-@media (min-width: 900px) {
-  .tide-container {
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: center;
-    gap: 0.8rem; /* 🔹 Lücke zwischen Tabelle und Webcam enger */
-    padding: 0 2.5rem; /* 🔹 etwas Platz links & rechts vom Gesamtlayout */
-  }
-
-  .tide-table {
-    flex: 1;
-    max-width: 520px;
-    margin-left: 1.5rem; /* 🔹 Platz links */
-    transform: none; /* vorherige Verschiebung entfernen */
-  }
-
-  .webcam {
-    flex: 1.7;
-    max-width: 1100px;
-    margin-right: 1.5rem; /* 🔹 gleichmäßiger Abstand rechts */
-  }
-
-  .webcam iframe {
-    height: 100%;
-    border-radius: 20px;
-  }
-}
-
-
-/* ===================== Mobile / Tablet Hochformat ===================== */
-@media (max-width: 899px) {
-  .webcam iframe {
-    width: 100%;
-    max-height: 260px;
-  }
-
-  .webcam {
-    max-width: 550px;
-  }
-}
-
-
-
-
-/* Bestehende Styles von dir */
 h1 {
   font-size: 1.5rem;
   margin: 0.2rem 0 0.3rem 0;
@@ -122,6 +64,7 @@ h2 {
   margin-bottom: 1rem;
 }
 
+/* ===== Buttons ===== */
 .buttons {
   display: flex;
   justify-content: center;
@@ -152,6 +95,7 @@ button.active {
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
 }
 
+/* ===== Dropdown ===== */
 select {
   font-family: "Poppins", sans-serif;
   background: white;
@@ -171,6 +115,7 @@ select:focus {
   box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
 }
 
+/* ===== Tabelle ===== */
 table {
   width: 100%;
   border-collapse: collapse;
@@ -204,6 +149,7 @@ tr.high td {
   font-weight: 600;
 }
 
+/* ===== Footer ===== */
 footer {
   margin-top: 1rem;
   font-size: 0.75rem;
@@ -213,4 +159,74 @@ footer {
 .error {
   color: #d32f2f;
   font-weight: 600;
+}
+
+/* ===== Webcam ===== */
+.webcam {
+  flex: 1.6;
+  width: 100%;
+  max-width: 1024px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.webcam iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+}
+
+.webcam-link {
+  margin-top: 0.6rem;
+  font-size: 0.9rem;
+}
+
+.webcam-link a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.webcam-link a:hover {
+  text-decoration: underline;
+}
+
+/* ===== Desktop / Querformat ===== */
+@media (min-width: 900px) {
+  .tide-container {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1rem;               /* engerer Abstand zwischen Karte und Webcam */
+    padding: 0 2.5rem;       /* heller Rand links/rechts */
+  }
+
+  .tide-table {
+    flex: 1;
+    max-width: 520px;
+    margin-left: 2rem;       /* mehr Platz links */
+  }
+
+  .webcam {
+    flex: 1.6;
+    max-width: 1100px;
+    margin-right: 2rem;      /* symmetrischer Abstand rechts */
+  }
+}
+
+/* ===== Mobile / Tablet Hochformat ===== */
+@media (max-width: 899px) {
+  .webcam iframe {
+    width: 100%;
+    max-height: 260px;
+  }
+
+  .webcam {
+    max-width: 550px;
+  }
 }
