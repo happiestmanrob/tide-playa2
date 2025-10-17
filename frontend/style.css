@@ -172,6 +172,7 @@ footer {
   justify-content: space-between;
 }
 
+.webcam video,
 .webcam iframe {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -183,7 +184,7 @@ footer {
 }
 
 .webcam-link {
-  margin-top: 0.6rem;
+  margin-top: 0.3rem;
   font-size: 0.9rem;
 }
 
@@ -202,62 +203,56 @@ footer {
     flex-direction: row;
     align-items: stretch;
     justify-content: center;
-    gap: 1rem;               /* engerer Abstand zwischen Karte und Webcam */
-    padding: 0 2.5rem;       /* heller Rand links/rechts */
+    gap: 1.5rem;
+    padding: 0 2.5rem;
   }
 
-  .tide-table {
-    flex: 1;
-    max-width: 520px;
-    margin-left: 2rem;       /* mehr Platz links */
+  .card {
+    flex: 0 0 460px;
   }
 
   .webcam {
-    flex: 1.6;
-    max-width: 1100px;
-    margin-right: 2rem;      /* symmetrischer Abstand rechts */
+    flex: 1;
+    max-width: 960px;
+    text-align: center;
+  }
+
+  .webcam video {
+    width: 100%;
+    height: auto;
   }
 }
 
 /* ===== Mobile / Tablet Hochformat ===== */
 @media (max-width: 899px) {
-  .webcam iframe {
-    width: 100%;
-    max-height: 260px;
+  .tide-container {
+    flex-direction: column;
   }
 
   .webcam {
     max-width: 550px;
   }
-}
 
-/* ===== Webcam vergrößert + geringerer Abstand zum Link ===== */
-.webcam {
-  flex: 1.8;               /* 🔹 etwas breiter */
-  max-width: 1200px;       /* 🔹 größere Maximalbreite auf Desktop */
-  text-align: center;
-}
-
-.webcam iframe {
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: none;
-  border-radius: 20px;
-  background: #000;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
-  object-fit: cover;
-  margin-bottom: 0;         /* 🔹 kein zusätzlicher Abstand mehr */
-}
-
-.webcam-link {
-  margin-top: 0.2rem;       /* 🔹 direkter Anschluss unter Video */
-  font-size: 0.9rem;
-}
-
-@media (min-width: 900px) {
-  .webcam {
-    flex: 1.8;
-    max-width: 1200px;      /* 🔹 nutzt etwas mehr Platz rechts */
+  .webcam video {
+    max-height: 260px;
   }
 }
 
+/* ===== Feintuning: Abstände & Balance ===== */
+.webcam {
+  flex: 1.8;
+  max-width: 1200px;
+  text-align: center;
+}
+
+.webcam video {
+  width: 100%;
+  border-radius: 20px;
+  background: #000;
+  margin-bottom: 0;
+}
+
+.webcam-link {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
+}
