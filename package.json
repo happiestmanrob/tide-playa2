@@ -1,0 +1,14 @@
+{
+  "name": "gezeiten-playa",
+  "version": "1.0.0",
+  "description": "Gezeitenanzeige für Playa del Inglés",
+  "type": "module",
+  "scripts": {
+    "start": "node scripts/fetch.js"
+  },
+  "dependencies": {
+    "puppeteer": "^22.0.0",
+    "cheerio": "^1.0.0",
+    "node-fetch": "^3.3.2"
+  }
+}
