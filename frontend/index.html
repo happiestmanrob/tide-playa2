@@ -48,42 +48,35 @@
    
 
     <!-- WEBCAM -->
-  </div>
 
   <div class="webcam">
-    <video id="beachcam"
-           controls
-           autoplay
-           muted
-           playsinline
-           width="960"
-           height="540"
-           style="border-radius:20px; box-shadow:0 8px 25px rgba(0,0,0,0.18); background:#000;">
-      Dein Browser unterstützt keine Video-Wiedergabe.
-    </video>
-    <div class="webcam-link">
-      <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/"
-         target="_blank" rel="noopener noreferrer">
-        🌴 Webcam: Playa del Inglés – Curva
-      </a>
-    </div>
+  <video id="liveCam" controls autoplay muted playsinline style="border-radius:20px; width:100%; max-width:1200px; box-shadow:0 8px 25px rgba(0,0,0,0.18); background:#000;"></video>
+  <div class="webcam-link">
+    🌴 <a href="https://in2thebeach.es/webcam/13/playa-del-ingles-curva/" target="_blank" rel="noopener noreferrer">
+      Webcam: Playa del Inglés – Curva
+    </a>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
 <script>
-const video = document.getElementById('beachcam');
-const videoSrc = 'https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8';
+const video = document.getElementById('liveCam');
+const streamUrl = "https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8";
 
 if (video.canPlayType('application/vnd.apple.mpegurl')) {
-  video.src = videoSrc;
+  // Safari kann HLS nativ
+  video.src = streamUrl;
 } else if (Hls.isSupported()) {
-  const hls = new Hls();
-  hls.loadSource(videoSrc);
+  // Andere Browser mit hls.js
+  const hls = new Hls({ liveDurationInfinity: true });
+  hls.loadSource(streamUrl);
   hls.attachMedia(video);
   hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
+} else {
+  video.outerHTML = '<p>Dein Browser unterstützt Live-Streams leider nicht 😢</p>';
 }
 </script>
+
 
 
 
