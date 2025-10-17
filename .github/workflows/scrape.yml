@@ -1,0 +1,49 @@
+name: Scrape tides and deploy
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *" # jeden Tag um 06:00 UTC
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 🧩 Checkout repository
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 📦 Install dependencies
+        run: |
+          echo "📦 Installiere Abhängigkeiten..."
+          npm install
+
+      - name: 🌊 Run tide fetch script with Puppeteer
+        run: |
+          echo "🌊 Starte Puppeteer-Scraper..."
+          node scripts/fetch.js
+
+      - name: 🗂 Copy frontend & data to public
+        run: |
+          echo "📂 Kopiere Frontend-Dateien und Daten nach public..."
+          mkdir -p public/data
+          cp -r frontend/* public/
+          cp -r public/data/* public/data/ || echo "⚠️ Keine neuen Datendateien gefunden"
+
+      - name: ✅ Verify output files
+        run: |
+          echo "🔍 Überprüfe erzeugte Dateien..."
+          ls -R public
+          test -f public/index.html || (echo "❌ index.html fehlt!" && exit 1)
+          test -f public/data/latest.json || (echo "❌ latest.json fehlt!" && exit 1)
+
+      - name: 🚀 Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
