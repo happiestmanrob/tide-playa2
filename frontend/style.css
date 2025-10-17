@@ -1,0 +1,196 @@
+body {
+  font-family: "Inter", system-ui, sans-serif;
+  background: radial-gradient(circle at top, #e6f5ff 0%, #d9f0ff 100%);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem 0;
+}
+
+/* Layout für Tabelle + Webcam */
+.tide-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  width: 95%;
+  max-width: 1200px;
+}
+
+/* Karte */
+.card {
+  background: white;
+  padding: 1.3rem 1.8rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  max-width: 500px;
+  text-align: center;
+}
+
+/* Webcam */
+.webcam {
+  flex: 1;
+  width: 100%;
+  max-width: 550px;
+  text-align: center;
+}
+
+.webcam-link {
+  margin-top: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.webcam-link a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.webcam-link a:hover {
+  text-decoration: underline;
+}
+
+/* Desktop: Tabelle links, Webcam rechts */
+@media (min-width: 900px) {
+  .tide-container {
+    flex-direction: row;
+    align-items: flex-start;
+    justify-content: center;
+  }
+
+  .tide-table {
+    margin-right: 2rem;
+    max-width: 500px;
+  }
+
+  .webcam {
+    max-width: 500px;
+  }
+}
+
+/* Bestehende Styles von dir */
+h1 {
+  font-size: 1.5rem;
+  margin: 0.2rem 0 0.3rem 0;
+}
+
+h2 {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.tide-icon {
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.status {
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.status.up { color: #2e7d32; }
+.status.down { color: #d32f2f; }
+
+.next {
+  color: #000;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  background: linear-gradient(180deg, #5b8df7, #446ef3);
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+button.active {
+  background: linear-gradient(180deg, #315cf0, #284ce0);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+select {
+  font-family: "Poppins", sans-serif;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 210px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+th {
+  color: #666;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  font-weight: 600;
+}
+
+td {
+  padding: 0.4rem 0;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9fbff;
+}
+
+tr.low td {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+tr.high td {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+footer {
+  margin-top: 1rem;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+.error {
+  color: #d32f2f;
+  font-weight: 600;
+}
