@@ -64,18 +64,15 @@ const video = document.getElementById('liveCam');
 const streamUrl = "https://richtigerleben.de/proxy.php?url=https://camserver2.in2thebeach.es/streams/mozart2/index.m3u8";
 
 if (video.canPlayType('application/vnd.apple.mpegurl')) {
-  // Safari kann HLS nativ
   video.src = streamUrl;
 } else if (Hls.isSupported()) {
-  // Andere Browser mit hls.js
   const hls = new Hls({ liveDurationInfinity: true });
   hls.loadSource(streamUrl);
   hls.attachMedia(video);
   hls.on(Hls.Events.MANIFEST_PARSED, () => video.play());
-} else {
-  video.outerHTML = '<p>Dein Browser unterstützt Live-Streams leider nicht 😢</p>';
 }
 </script>
+
 
 
 
