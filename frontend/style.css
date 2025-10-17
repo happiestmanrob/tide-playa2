@@ -10,34 +10,11 @@ body {
 }
 
 /* ========== Layout für Karte + Webcam ========== */
-.tide-container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.2rem;
-  width: 96%;
-  max-width: 1500px;
-  margin: 0 auto;
-}
-
-/* Karte */
-.card {
-  background: white;
-  padding: 1.3rem 1.8rem;
-  border-radius: 20px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-  width: 100%;
-  max-width: 520px;
-  text-align: center;
-  flex: 1;
-}
-
-/* Webcam */
+/* ===================== Webcam optimiert ===================== */
 .webcam {
-  flex: 1.4;
+  flex: 1.6;
   width: 100%;
-  max-width: 800px;
+  max-width: 1024px; /* passt exakt zum Format */
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -46,15 +23,15 @@ body {
 
 .webcam iframe {
   width: 100%;
-  height: 100%;
-  aspect-ratio: 16 / 9;
+  aspect-ratio: 16 / 9;        /* exaktes Verhältnis */
   border: none;
   border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
   background: #000;
-  object-fit: cover; /* Füllt das Video */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  object-fit: cover;
 }
 
+/* Link unter der Webcam */
 .webcam-link {
   margin-top: 0.6rem;
   font-size: 0.9rem;
@@ -69,33 +46,28 @@ body {
   text-decoration: underline;
 }
 
-/* ========== Desktop / Querformat ========== */
+/* ===================== Desktop / Querformat ===================== */
 @media (min-width: 900px) {
   .tide-container {
     flex-direction: row;
-    align-items: stretch; /* gleiche Höhe */
-    justify-content: space-between;
-    gap: 1rem;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1.2rem;
   }
 
   .tide-table {
     flex: 1;
     max-width: 520px;
-    transform: translateX(-1.5rem); /* leicht nach links */
+    transform: translateX(-1.5rem);
   }
 
   .webcam {
-    flex: 1.4;
-    max-width: 850px;
-  }
-
-  .webcam iframe {
-    height: 100%;
-    border-radius: 20px;
+    flex: 1.7; /* etwas breiter */
+    max-width: 1100px; /* mehr Platz auf breiten Screens */
   }
 }
 
-/* ========== Tablet / Mobile Hochformat ========== */
+/* ===================== Mobile / Tablet Hochformat ===================== */
 @media (max-width: 899px) {
   .webcam iframe {
     width: 100%;
@@ -106,6 +78,7 @@ body {
     max-width: 550px;
   }
 }
+
 
 
 
