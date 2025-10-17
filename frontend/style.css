@@ -230,3 +230,34 @@ footer {
     max-width: 550px;
   }
 }
+
+/* ===== Webcam vergrößert + geringerer Abstand zum Link ===== */
+.webcam {
+  flex: 1.8;               /* 🔹 etwas breiter */
+  max-width: 1200px;       /* 🔹 größere Maximalbreite auf Desktop */
+  text-align: center;
+}
+
+.webcam iframe {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+  margin-bottom: 0;         /* 🔹 kein zusätzlicher Abstand mehr */
+}
+
+.webcam-link {
+  margin-top: 0.2rem;       /* 🔹 direkter Anschluss unter Video */
+  font-size: 0.9rem;
+}
+
+@media (min-width: 900px) {
+  .webcam {
+    flex: 1.8;
+    max-width: 1200px;      /* 🔹 nutzt etwas mehr Platz rechts */
+  }
+}
+
