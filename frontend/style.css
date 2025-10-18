@@ -200,8 +200,10 @@ footer {
   text-decoration: underline;
 }
 
+
+
 /* =========================================================
-   💻 Desktop / Querformat
+   💻 Desktop / Querformat (optimiert, bündig mit Karte)
    ========================================================= */
 @media (min-width: 900px) {
   .tide-container {
@@ -223,9 +225,14 @@ footer {
 
   .webcam video {
     width: 100%;
-    height: auto;
+    height: 530px;       /* 🔹 Video bündig mit Karte unten */
+    object-fit: cover;   /* 🔹 schneidet Ränder sanft zu */
+    border-radius: 20px;
+    background: #000;
   }
 }
+
+
 
 /* =========================================================
    📱 Smartphone Hochformat (kompakt, mit Rändern)
