@@ -1,11 +1,13 @@
 /* =========================================================
-   🌍 Grundlayout-Anpassung: Kein Scrollen, zentriert
+   🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam
    ========================================================= */
+
+/* ===== Grundlayout: Zentriert + kein Scrollen ===== */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* 🔹 Kein Scrollen mehr */
+  overflow: hidden; /* Kein Scrollen */
 }
 
 body {
@@ -14,24 +16,190 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
+  transition: all 0.5s ease; /* Sanfte Animation bei Layoutwechsel */
 }
 
-/* Container zentrieren */
+/* ===== Container für Karte + Webcam ===== */
 .tide-container {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
   width: 95%;
-  max-width: 1200px;
-  gap: 1rem;
+  max-width: 1300px;
+  gap: 1.2rem;
   margin: 0 auto;
+  transition: all 0.4s ease-in-out;
 }
 
-/* Card und Webcam sollen bündig wirken */
-.card, .webcam {
+/* ===== Gezeiten-Karte ===== */
+.card {
+  background: white;
+  padding: 1.3rem 1.8rem;
+  border-radius: 20px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   width: 100%;
+  max-width: 520px;
+  text-align: center;
+  flex: 1;
   box-sizing: border-box;
+  transition: all 0.4s ease-in-out;
+}
+
+h1 {
+  font-size: 1.5rem;
+  margin: 0.2rem 0 0.3rem 0;
+}
+
+h2 {
+  font-size: 0.95rem;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.tide-icon {
+  font-size: 2rem;
+  margin-bottom: 0.3rem;
+}
+
+.status {
+  font-weight: 700;
+  margin-bottom: 0.3rem;
+}
+
+.status.up { color: #2e7d32; }
+.status.down { color: #d32f2f; }
+
+.next {
+  color: #000;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+/* ===== Buttons ===== */
+.buttons {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+button {
+  background: linear-gradient(180deg, #5b8df7, #446ef3);
+  border: none;
+  border-radius: 10px;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+  font-weight: 600;
+  color: white;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  transition: transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.15);
+}
+
+button.active {
+  background: linear-gradient(180deg, #315cf0, #284ce0);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* ===== Dropdown ===== */
+select {
+  font-family: "Poppins", sans-serif;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 10px;
+  padding: 0.45rem 0.8rem;
+  font-size: 0.9rem;
+  text-align: center;
+  min-width: 210px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: border-color 0.2s ease;
+}
+
+select:focus {
+  outline: none;
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+}
+
+/* ===== Tabelle ===== */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: center;
+  margin-top: 1rem;
+  font-size: 0.95rem;
+}
+
+th {
+  color: #666;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #ddd;
+  font-weight: 600;
+}
+
+td {
+  padding: 0.4rem 0;
+}
+
+tbody tr:nth-child(odd) {
+  background-color: #f9fbff;
+}
+
+tr.low td {
+  color: #d32f2f;
+  font-weight: 600;
+}
+
+tr.high td {
+  color: #2e7d32;
+  font-weight: 600;
+}
+
+/* ===== Footer ===== */
+footer {
+  margin-top: 0.6rem;
+  font-size: 0.75rem;
+  color: #777;
+}
+
+/* ===== Webcam ===== */
+.webcam {
+  flex: 1.6;
+  width: 100%;
+  max-width: 1024px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.webcam video {
+  width: 100%;
+  border-radius: 20px;
+  background: #000;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+  object-fit: cover;
+  transition: all 0.5s ease-in-out;
+}
+
+.webcam-link {
+  margin-top: 0.3rem;
+  font-size: 0.9rem;
+}
+
+.webcam-link a {
+  color: #0066cc;
+  text-decoration: none;
+}
+
+.webcam-link a:hover {
+  text-decoration: underline;
 }
 
 /* =========================================================
@@ -39,25 +207,21 @@ body {
    ========================================================= */
 @media (max-width: 599px) {
   .tide-container {
-    width: 92%;
+    width: 90%;
   }
 
-  .card,
-  .webcam {
+  .card, .webcam {
     width: 100%;
     margin: 0 auto;
   }
 
   .webcam video {
     width: 100%;
-    height: 200px; /* 🔹 Kürzer, damit alles sichtbar ohne Scrollen */
-    object-fit: cover;
-    border-radius: 20px;
-    display: block;
+    height: 200px; /* klein genug für Fullscreen ohne Scrollen */
   }
 
   body {
-    overflow-y: hidden; /* Kein Scrollen */
+    overflow-y: hidden;
   }
 }
 
@@ -66,29 +230,24 @@ body {
    ========================================================= */
 @media (min-width: 600px) and (max-width: 899px) {
   .tide-container {
-    width: 94%;
-    max-width: 900px;
-    margin: 0 auto;
+    width: 92%;
+    max-width: 920px;
     justify-content: center;
     align-items: center;
   }
 
-  .card,
-  .webcam {
+  .card, .webcam {
     width: 100%;
     margin: 0 auto;
   }
 
   .webcam video {
     width: 100%;
-    height: 380px; /* 🔹 Mehr Höhe für Tablet */
-    object-fit: cover;
-    border-radius: 20px;
-    display: block;
+    height: 400px;
   }
 
   body {
-    overflow-y: hidden; /* Kein Scrollen */
+    overflow-y: hidden;
   }
 }
 
@@ -96,11 +255,6 @@ body {
    💻 Desktop / Querformat (ab 900px)
    ========================================================= */
 @media (min-width: 900px) {
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
-
   .tide-container {
     flex-direction: row;
     align-items: center;
@@ -108,7 +262,6 @@ body {
     gap: 1.8rem;
     height: 100%;
     max-width: 1300px;
-    margin: 0 auto;
   }
 
   .card {
@@ -116,12 +269,8 @@ body {
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 80vh; /* 🔹 80 % der Höhe für perfekte Balance */
+    height: 80vh;
     padding-bottom: 1rem;
-  }
-
-  footer {
-    margin-top: 0.5rem;
   }
 
   .webcam {
@@ -134,15 +283,18 @@ body {
 
   .webcam video {
     flex-grow: 1;
-    width: 100%;
     height: 100%;
-    object-fit: cover;
-    border-radius: 20px;
-    background: #000;
-    display: block;
   }
 
-  .webcam-link {
+  footer {
     margin-top: 0.4rem;
   }
+}
+
+/* =========================================================
+   ⚙️ Feintuning global
+   ========================================================= */
+.webcam-link {
+  margin-top: 0.2rem;
+  font-size: 0.9rem;
 }
