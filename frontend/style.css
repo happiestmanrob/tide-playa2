@@ -203,57 +203,7 @@ footer {
 
 
 /* =========================================================
-   💻 Desktop / Querformat – dynamisch bündig mit Karte
-   ========================================================= */
-@media (min-width: 900px) {
-  .tide-container {
-    flex-direction: row;
-    align-items: stretch;
-    justify-content: center;
-    gap: 1.5rem;
-    padding: 0 2.5rem;
-  }
-
-  /* Karte: unten bündig abschließen */
-  .card {
-    flex: 0 0 460px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-    height: auto;
-    padding-bottom: 1rem; /* etwas weniger Abstand unten */
-  }
-
-  footer {
-    margin-top: 0.6rem; /* kleinerer Abstand zur letzten Zeile */
-  }
-
-  /* Webcam dynamisch an Kartenhöhe anpassen */
-  .webcam {
-    flex: 1;
-    max-width: 960px;
-    display: flex;
-    flex-direction: column;
-  }
-
-  .webcam video {
-    flex-grow: 1;          /* passt sich automatisch an */
-    height: 100%;          /* übernimmt Höhe des Containers */
-    object-fit: cover;     /* schön zugeschnitten */
-    border-radius: 20px;
-    background: #000;
-  }
-
-  .webcam-link {
-    margin-top: 0.3rem;
-  }
-}
-
-
-
-
-/* =========================================================
-   📱 Smartphone Hochformat (kompakt, mit Rändern)
+   📱 Smartphone Hochformat (bis 599px)
    ========================================================= */
 @media (max-width: 599px) {
   .card,
@@ -265,8 +215,10 @@ footer {
 
   .webcam video {
     width: 100%;
-    height: 250px;       /* 🔹 Kompakter für Smartphones */
+    height: 220px;        /* etwas kleiner, damit kein Scrollen nötig ist */
     object-fit: cover;
+    border-radius: 20px;
+    display: block;
   }
 
   .webcam-link {
@@ -275,10 +227,9 @@ footer {
 }
 
 /* =========================================================
-   📲 Tablet Hochformat (mehr Platz, größeres Video)
+   📲 Tablet Hochformat (600px – 899px)
    ========================================================= */
 @media (min-width: 600px) and (max-width: 899px) {
-
   .card,
   .webcam {
     width: 94%;
@@ -286,17 +237,71 @@ footer {
     margin: 0 auto;
   }
 
+  .card {
+    margin-bottom: 0; /* Kein zusätzlicher Abstand nach unten */
+  }
+
   .webcam video {
     width: 100%;
-    height: 400px;        /* 🔹 Deutlich höheres Video */
+    height: calc(100vh - 300px); /* dynamisch je nach Displayhöhe */
+    max-height: 480px;           /* obere Grenze, damit es harmonisch bleibt */
     object-fit: cover;
     border-radius: 20px;
+    display: block;
   }
 
   .webcam-link {
     margin-top: 0.4rem;
   }
 }
+
+/* =========================================================
+   💻 Desktop / Querformat (ab 900px)
+   ========================================================= */
+@media (min-width: 900px) {
+  .tide-container {
+    flex-direction: row;
+    align-items: stretch;
+    justify-content: center;
+    gap: 1.5rem;
+    padding: 0 2.5rem;
+  }
+
+  .card {
+    flex: 0 0 460px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    height: auto;
+    padding-bottom: 1rem;
+  }
+
+  footer {
+    margin-top: 0.6rem;
+  }
+
+  .webcam {
+    flex: 1;
+    max-width: 960px;
+    display: flex;
+    flex-direction: column;
+    justify-content: stretch;
+  }
+
+  .webcam video {
+    flex-grow: 1;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 20px;
+    background: #000;
+    display: block;
+  }
+
+  .webcam-link {
+    margin-top: 0.3rem;
+  }
+}
+
 
 /* =========================================================
    ⚙️ Feintuning global
