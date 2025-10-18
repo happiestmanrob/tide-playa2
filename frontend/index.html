@@ -22,24 +22,21 @@
       <div class="status" id="tide-status">Das Wasser steigt</div>
       <div class="next" id="next-high">nächstes Hochwasser um –:– Uhr</div>
 
- 
+      <!-- 🔹 Buttons (Heute, Morgen, Übermorgen) -->
+      <div class="buttons">
+        <button id="btn-today" class="active">Heute</button>
+        <button id="btn-tomorrow">Morgen</button>
+        <button id="btn-after">Übermorgen</button>
+      </div>
 
-<!-- Buttons + Datumsauswahl -->
-<div class="buttons">
-  <button id="btn-today" class="active">Heute</button>
-  <button id="btn-tomorrow">Morgen</button>
-  <button id="btn-after">Übermorgen</button>
-</div>
+      <!-- 🔹 Neue Navigation mit < > und Datumsauswahl -->
+      <div class="date-nav">
+        <button id="btn-prev" class="nav-btn" title="Einen Tag zurück">‹</button>
+        <select id="date-select"></select>
+        <button id="btn-next" class="nav-btn" title="Einen Tag weiter">›</button>
+      </div>
 
-<div class="date-nav">
-  <button id="btn-prev" class="nav-btn">‹</button>
-  <select id="date-select"></select>
-  <button id="btn-next" class="nav-btn">›</button>
-</div>
-
-
-      
-
+      <!-- 🔹 Tabelle -->
       <table>
         <thead>
           <tr>
@@ -56,7 +53,7 @@
       </footer>
     </div>
 
-    <!-- Webcam -->
+    <!-- 🔹 Webcam -->
     <div class="webcam">
       <video id="liveCam" 
              controls 
@@ -75,7 +72,7 @@
     </div>
   </div>
 
-  <!-- HLS Player -->
+  <!-- 🔹 HLS Player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
   const video = document.getElementById('liveCam');
@@ -100,7 +97,7 @@
   }
   </script>
 
-  <!-- Gezeitenlogik -->
+  <!-- 🔹 Gezeitenlogik -->
   <script>
     let activeIndex = 0;
 
@@ -198,13 +195,12 @@
       document.getElementById("btn-after").classList.toggle("active", activeIndex === todayIndex + 2);
     }
 
-    // ✅ Hier ist der neue, korrekte Abschnitt
+    // 🔹 Status-Text aktualisieren
     function updateStatus(day) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       const todayISO = new Date().toISOString().split("T")[0];
       const selectedDateISO = day.date;
-
       const allDays = window.tideData;
       const idx = allDays.findIndex((d) => d.date === selectedDateISO);
 
@@ -249,10 +245,29 @@
         `Quelle: tide-forecast.com <span>·</span> Aktualisiert: ${updated} WET`;
     }
 
+    // 🔹 Navigation: Buttons + Dropdown
     document.getElementById("btn-today").onclick = () => showDay(findTodayIndex(window.tideData));
     document.getElementById("btn-tomorrow").onclick = () => showDay(findTodayIndex(window.tideData) + 1);
     document.getElementById("btn-after").onclick = () => showDay(findTodayIndex(window.tideData) + 2);
 
+    // 🔹 NEU: Navigation per < und >
+    const selectEl = document.getElementById("date-select");
+    document.getElementById("btn-prev").onclick = () => {
+      const idx = selectEl.selectedIndex;
+      if (idx > 0) {
+        selectEl.selectedIndex = idx - 1;
+        selectEl.dispatchEvent(new Event("change"));
+      }
+    };
+    document.getElementById("btn-next").onclick = () => {
+      const idx = selectEl.selectedIndex;
+      if (idx < selectEl.options.length - 1) {
+        selectEl.selectedIndex = idx + 1;
+        selectEl.dispatchEvent(new Event("change"));
+      }
+    };
+
+    // 🔹 Initiales Laden
     loadTideData();
   </script>
 </body>
