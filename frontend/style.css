@@ -1,5 +1,5 @@
 /* =========================================================
-   🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam
+   🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam (V2.1)
    ========================================================= */
 
 /* ===== Allgemeines Layout ===== */
@@ -14,6 +14,8 @@
 
 html, body {
   height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
 body {
@@ -22,9 +24,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100vh;
-  margin: 0;
-  padding: 1.5rem 0;
+  min-height: 100dvh; /* dynamisch, kein heller Balken unten mehr */
   overflow-x: hidden;
 }
 
@@ -39,6 +39,7 @@ body {
   margin: 0 auto;
   gap: var(--gap-main);
   flex-grow: 1;
+  padding: 1.5rem 0;
 }
 
 /* ===== Gezeiten-Karte ===== */
@@ -50,7 +51,6 @@ body {
   width: 100%;
   max-width: var(--card-max);
   text-align: center;
-  flex: 1;
   transition: box-shadow 0.25s ease, transform 0.25s ease;
 }
 
@@ -155,7 +155,7 @@ h2 {
   box-shadow: 0 0 12px rgba(68, 110, 243, 0.5);
 }
 
-/* Dropdown */
+/* ===== Dropdown schöner + zentriert ===== */
 select {
   font-family: "Poppins", sans-serif;
   background: white;
@@ -164,7 +164,8 @@ select {
   padding: 0.5rem 0.9rem;
   font-size: 0.95rem;
   min-width: 230px;
-  text-align: left;
+  text-align: center; /* zentriert */
+  appearance: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: border-color 0.2s ease, box-shadow 0.2s;
 }
@@ -181,10 +182,9 @@ table {
   text-align: center;
   margin-top: 1rem;
   font-size: 0.95rem;
-  table-layout: fixed; /* Fixe Breiten verhindern Springen */
+  table-layout: fixed; /* verhindert Springen */
 }
-th,
-td {
+th, td {
   width: 33%;
   text-align: center;
 }
@@ -212,14 +212,10 @@ tr.high td {
 /* ===== Footer ===== */
 footer {
   margin-top: 0.6rem;
-  font-size: 0.7rem;
+  font-size: 0.68rem;
   color: #777;
   text-align: center;
   white-space: nowrap;
-}
-.error {
-  color: #d32f2f;
-  font-weight: 600;
 }
 
 /* ===== Webcam ===== */
@@ -257,10 +253,6 @@ footer {
    📱 Smartphone Hochformat (bis 599px)
    ========================================================= */
 @media (max-width: 599px) {
-  body {
-    padding: 1rem 0;
-  }
-
   .card,
   .webcam {
     width: 92%;
@@ -277,15 +269,6 @@ footer {
   .btn {
     min-width: 90px;
     padding: 0.5rem 0.8rem;
-  }
-
-  h1 {
-    font-size: 1.3rem;
-    line-height: 1.3rem;
-  }
-
-  footer {
-    font-size: 0.68rem;
   }
 
   .webcam video {
@@ -313,12 +296,8 @@ footer {
 
   .webcam video {
     width: 100%;
-    max-height: 420px; /* Kein Scrollen */
+    max-height: 420px; /* Kein Scrollen mehr */
     object-fit: cover;
-  }
-
-  footer {
-    font-size: 0.75rem;
   }
 }
 
