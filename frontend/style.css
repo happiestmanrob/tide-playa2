@@ -2,12 +2,13 @@
    🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam
    ========================================================= */
 
-/* ===== Grundlayout: Zentriert + kein Scrollen ===== */
+/* ===== Grundlayout ===== */
 html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow: hidden; /* Kein Scrollen */
+  overflow-x: hidden; /* Kein horizontales Scrollen */
+  overflow-y: auto;   /* Automatisches Scrollen falls nötig (kleine Geräte) */
 }
 
 body {
@@ -16,7 +17,7 @@ body {
   display: flex;
   justify-content: center;
   align-items: center;
-  transition: all 0.5s ease; /* Sanfte Animation bei Layoutwechsel */
+  transition: all 0.4s ease;
 }
 
 /* ===== Container für Karte + Webcam ===== */
@@ -28,7 +29,7 @@ body {
   width: 95%;
   max-width: 1300px;
   gap: 1.2rem;
-  margin: 0 auto;
+  margin: 1rem auto;
   transition: all 0.4s ease-in-out;
 }
 
@@ -47,8 +48,10 @@ body {
 }
 
 h1 {
-  font-size: 1.5rem;
+  font-size: 1.45rem;
   margin: 0.2rem 0 0.3rem 0;
+  line-height: 1.2;
+  white-space: nowrap; /* Emoji bleibt in der Zeile */
 }
 
 h2 {
@@ -172,7 +175,6 @@ footer {
 .webcam {
   flex: 1.6;
   width: 100%;
-  max-width: 1024px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -206,8 +208,14 @@ footer {
    📱 Smartphone Hochformat (bis 599px)
    ========================================================= */
 @media (max-width: 599px) {
+  h1 {
+    font-size: 1.25rem; /* kleiner, passt mit Emoji in eine Zeile */
+  }
+
   .tide-container {
     width: 90%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
   }
 
   .card, .webcam {
@@ -216,12 +224,11 @@ footer {
   }
 
   .webcam video {
-    width: 100%;
-    height: 200px; /* klein genug für Fullscreen ohne Scrollen */
+    height: 200px;
   }
 
   body {
-    overflow-y: hidden;
+    overflow-y: auto; /* Scrollen wieder erlaubt bei kleinen Geräten */
   }
 }
 
@@ -231,7 +238,7 @@ footer {
 @media (min-width: 600px) and (max-width: 899px) {
   .tide-container {
     width: 92%;
-    max-width: 920px;
+    max-width: 940px;
     justify-content: center;
     align-items: center;
   }
@@ -239,15 +246,16 @@ footer {
   .card, .webcam {
     width: 100%;
     margin: 0 auto;
+    max-width: 940px; /* gleiche Breite für Card & Video */
   }
 
   .webcam video {
     width: 100%;
-    height: 400px;
+    height: 420px;
   }
 
   body {
-    overflow-y: hidden;
+    overflow-y: auto; /* leichtes Scrollen möglich falls nötig */
   }
 }
 
@@ -255,6 +263,11 @@ footer {
    💻 Desktop / Querformat (ab 900px)
    ========================================================= */
 @media (min-width: 900px) {
+  html, body {
+    height: 100%;
+    overflow: hidden;
+  }
+
   .tide-container {
     flex-direction: row;
     align-items: center;
