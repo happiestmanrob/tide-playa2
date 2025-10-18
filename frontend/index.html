@@ -22,21 +22,20 @@
       <div class="status" id="tide-status">Das Wasser steigt</div>
       <div class="next" id="next-high">nächstes Hochwasser um –:– Uhr</div>
 
-      <!-- 🔹 Buttons (Heute, Morgen, Übermorgen) -->
+      <!-- Buttons: Heute / Morgen / Übermorgen -->
       <div class="buttons">
-        <button id="btn-today" class="active">Heute</button>
-        <button id="btn-tomorrow">Morgen</button>
-        <button id="btn-after">Übermorgen</button>
+        <button id="btn-today" class="btn active">Heute</button>
+        <button id="btn-tomorrow" class="btn">Morgen</button>
+        <button id="btn-after" class="btn">Übermorgen</button>
       </div>
 
-      <!-- 🔹 Neue Navigation mit < > und Datumsauswahl -->
+      <!-- Datum-Navigation: ‹  [Select]  › -->
       <div class="date-nav">
-        <button id="btn-prev" class="nav-btn" title="Einen Tag zurück">‹</button>
-        <select id="date-select"></select>
-        <button id="btn-next" class="nav-btn" title="Einen Tag weiter">›</button>
+        <button id="btn-prev" class="nav-btn" aria-label="Vortag">‹</button>
+        <select id="date-select" aria-label="Datum wählen"></select>
+        <button id="btn-next" class="nav-btn" aria-label="Folgetag">›</button>
       </div>
 
-      <!-- 🔹 Tabelle -->
       <table>
         <thead>
           <tr>
@@ -53,7 +52,7 @@
       </footer>
     </div>
 
-    <!-- 🔹 Webcam -->
+    <!-- Webcam -->
     <div class="webcam">
       <video id="liveCam" 
              controls 
@@ -72,7 +71,7 @@
     </div>
   </div>
 
-  <!-- 🔹 HLS Player -->
+  <!-- HLS Player -->
   <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
   <script>
   const video = document.getElementById('liveCam');
@@ -97,7 +96,7 @@
   }
   </script>
 
-  <!-- 🔹 Gezeitenlogik -->
+  <!-- Gezeitenlogik -->
   <script>
     let activeIndex = 0;
 
@@ -195,12 +194,12 @@
       document.getElementById("btn-after").classList.toggle("active", activeIndex === todayIndex + 2);
     }
 
-    // 🔹 Status-Text aktualisieren
     function updateStatus(day) {
       const now = new Date();
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       const todayISO = new Date().toISOString().split("T")[0];
       const selectedDateISO = day.date;
+
       const allDays = window.tideData;
       const idx = allDays.findIndex((d) => d.date === selectedDateISO);
 
@@ -221,8 +220,8 @@
       const sameDay = todayISO === selectedDateISO;
       const trendUp = nextTide?.typ === "Hochwasser";
       const trendText = sameDay
-        ? trendUp ? "Das Wasser steigt gerade" : "Das Wasser fällt gerade"
-        : trendUp ? "Das Wasser steigt dann" : "Das Wasser fällt dann";
+        ? (trendUp ? "Das Wasser steigt gerade" : "Das Wasser fällt gerade")
+        : (trendUp ? "Das Wasser steigt dann" : "Das Wasser fällt dann");
 
       document.getElementById("tide-status").textContent = trendText;
       document.getElementById("tide-status").className = trendUp ? "status up" : "status down";
@@ -245,29 +244,22 @@
         `Quelle: tide-forecast.com <span>·</span> Aktualisiert: ${updated} WET`;
     }
 
-    // 🔹 Navigation: Buttons + Dropdown
-    document.getElementById("btn-today").onclick = () => showDay(findTodayIndex(window.tideData));
+    // ◀︎ / ▶︎ Navigation (ein Tag zurück/weiter)
+    function stepDay(delta) {
+      const select = document.getElementById("date-select");
+      const days = window.tideData;
+      const idx = days.findIndex(d => d.date === select.value);
+      const next = Math.min(Math.max(idx + delta, 0), days.length - 1);
+      showDay(next);
+    }
+    document.getElementById("btn-prev").addEventListener("click", () => stepDay(-1));
+    document.getElementById("btn-next").addEventListener("click", () => stepDay(1));
+
+    // Schnellwahl Heute/Morgen/Übermorgen
+    document.getElementById("btn-today").onclick    = () => showDay(findTodayIndex(window.tideData));
     document.getElementById("btn-tomorrow").onclick = () => showDay(findTodayIndex(window.tideData) + 1);
-    document.getElementById("btn-after").onclick = () => showDay(findTodayIndex(window.tideData) + 2);
+    document.getElementById("btn-after").onclick    = () => showDay(findTodayIndex(window.tideData) + 2);
 
-    // 🔹 NEU: Navigation per < und >
-    const selectEl = document.getElementById("date-select");
-    document.getElementById("btn-prev").onclick = () => {
-      const idx = selectEl.selectedIndex;
-      if (idx > 0) {
-        selectEl.selectedIndex = idx - 1;
-        selectEl.dispatchEvent(new Event("change"));
-      }
-    };
-    document.getElementById("btn-next").onclick = () => {
-      const idx = selectEl.selectedIndex;
-      if (idx < selectEl.options.length - 1) {
-        selectEl.selectedIndex = idx + 1;
-        selectEl.dispatchEvent(new Event("change"));
-      }
-    };
-
-    // 🔹 Initiales Laden
     loadTideData();
   </script>
 </body>
