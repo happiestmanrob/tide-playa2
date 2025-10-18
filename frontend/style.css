@@ -7,8 +7,8 @@ html, body {
   height: 100%;
   margin: 0;
   padding: 0;
-  overflow-x: hidden; /* Kein horizontales Scrollen */
-  overflow-y: auto;   /* Automatisches Scrollen falls nötig (kleine Geräte) */
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 body {
@@ -20,7 +20,7 @@ body {
   transition: all 0.4s ease;
 }
 
-/* ===== Container für Karte + Webcam ===== */
+/* ===== Container ===== */
 .tide-container {
   display: flex;
   flex-direction: column;
@@ -33,7 +33,7 @@ body {
   transition: all 0.4s ease-in-out;
 }
 
-/* ===== Gezeiten-Karte ===== */
+/* ===== Karte ===== */
 .card {
   background: white;
   padding: 1.3rem 1.8rem;
@@ -51,7 +51,7 @@ h1 {
   font-size: 1.45rem;
   margin: 0.2rem 0 0.3rem 0;
   line-height: 1.2;
-  white-space: nowrap; /* Emoji bleibt in der Zeile */
+  white-space: nowrap;
 }
 
 h2 {
@@ -85,7 +85,7 @@ h2 {
   justify-content: center;
   flex-wrap: wrap;
   gap: 0.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 0.8rem;
 }
 
 button {
@@ -110,7 +110,16 @@ button.active {
   box-shadow: inset 0 2px 5px rgba(0,0,0,0.2);
 }
 
-/* ===== Dropdown ===== */
+/* ===== Navigation (Dropdown + < >) ===== */
+.date-nav {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  flex-wrap: nowrap;
+}
+
 select {
   font-family: "Poppins", sans-serif;
   background: white;
@@ -128,6 +137,28 @@ select:focus {
   outline: none;
   border-color: #4c6ef5;
   box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+}
+
+.nav-btn {
+  background: linear-gradient(180deg, #5b8df7, #446ef3);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  width: 2.2rem;
+  height: 2.2rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  transition: all 0.2s ease;
+}
+
+.nav-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 3px 6px rgba(0,0,0,0.15);
 }
 
 /* ===== Tabelle ===== */
@@ -154,15 +185,8 @@ tbody tr:nth-child(odd) {
   background-color: #f9fbff;
 }
 
-tr.low td {
-  color: #d32f2f;
-  font-weight: 600;
-}
-
-tr.high td {
-  color: #2e7d32;
-  font-weight: 600;
-}
+tr.low td { color: #d32f2f; font-weight: 600; }
+tr.high td { color: #2e7d32; font-weight: 600; }
 
 /* ===== Footer ===== */
 footer {
@@ -205,62 +229,59 @@ footer {
 }
 
 /* =========================================================
-   📱 Smartphone Hochformat (bis 599px)
+   📱 Smartphone Hochformat
    ========================================================= */
 @media (max-width: 599px) {
-  h1 {
-    font-size: 1.25rem; /* kleiner, passt mit Emoji in eine Zeile */
-  }
+  h1 { font-size: 1.25rem; }
 
-  .tide-container {
-    width: 90%;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-  }
+  .tide-container { width: 90%; }
 
-  .card, .webcam {
-    width: 100%;
-    margin: 0 auto;
+  .buttons { flex-wrap: wrap; }
+  .date-nav {
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.4rem;
   }
 
   .webcam video {
     height: 200px;
   }
 
-  body {
-    overflow-y: auto; /* Scrollen wieder erlaubt bei kleinen Geräten */
-  }
+  body { overflow-y: auto; }
 }
 
 /* =========================================================
-   📲 Tablet Hochformat (600px – 899px)
+   📲 Tablet Hochformat
    ========================================================= */
 @media (min-width: 600px) and (max-width: 899px) {
   .tide-container {
     width: 92%;
     max-width: 940px;
-    justify-content: center;
-    align-items: center;
   }
+
+  .buttons, .date-nav {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 0.5rem;
+  }
+
+  .date-nav { margin-top: 0.2rem; }
 
   .card, .webcam {
     width: 100%;
-    margin: 0 auto;
-    max-width: 940px; /* gleiche Breite für Card & Video */
+    max-width: 940px;
   }
 
   .webcam video {
-    width: 100%;
     height: 420px;
   }
 
-  body {
-    overflow-y: auto; /* leichtes Scrollen möglich falls nötig */
-  }
+  body { overflow-y: auto; }
 }
 
 /* =========================================================
-   💻 Desktop / Querformat (ab 900px)
+   💻 Desktop / Querformat
    ========================================================= */
 @media (min-width: 900px) {
   html, body {
@@ -286,12 +307,16 @@ footer {
     padding-bottom: 1rem;
   }
 
+  .date-nav {
+    justify-content: center;
+    margin-bottom: 0.5rem;
+  }
+
   .webcam {
     flex: 1;
     height: 80vh;
     display: flex;
     flex-direction: column;
-    justify-content: stretch;
   }
 
   .webcam video {
@@ -299,9 +324,7 @@ footer {
     height: 100%;
   }
 
-  footer {
-    margin-top: 0.4rem;
-  }
+  footer { margin-top: 0.4rem; }
 }
 
 /* =========================================================
