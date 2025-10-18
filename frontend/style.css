@@ -176,8 +176,7 @@ footer {
   justify-content: space-between;
 }
 
-.webcam video,
-.webcam iframe {
+.webcam video {
   width: 100%;
   aspect-ratio: 16 / 9;
   border: none;
@@ -220,7 +219,6 @@ footer {
   .webcam {
     flex: 1;
     max-width: 960px;
-    text-align: center;
   }
 
   .webcam video {
@@ -230,26 +228,20 @@ footer {
 }
 
 /* =========================================================
-   📱 Mobile + Tablet Hochformat (optimiert)
+   📱 Smartphone Hochformat (kompakt, mit Rändern)
    ========================================================= */
-@media (max-width: 899px) {
-
-  /* Karte & Webcam auf gleiche Breite */
+@media (max-width: 599px) {
   .card,
   .webcam {
-    width: 95%;
-    max-width: 95%;
+    width: 92%;
+    max-width: 92%;
     margin: 0 auto;
   }
 
-  /* Video größer (mehr Höhe, leicht zugeschnitten) */
   .webcam video {
     width: 100%;
-    height: 360px;       /* 🔹 Erhöht die Videohöhe */
-    object-fit: cover;   /* 🔹 Füllt den Raum schön aus */
-    border-radius: 20px;
-    background: #000;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+    height: 250px;       /* 🔹 Kompakter für Smartphones */
+    object-fit: cover;
   }
 
   .webcam-link {
@@ -258,14 +250,32 @@ footer {
 }
 
 /* =========================================================
-   ⚙️ Feintuning: Abstände & Balance
+   📲 Tablet Hochformat (mehr Platz, größeres Video)
    ========================================================= */
-.webcam {
-  flex: 1.8;
-  max-width: 1200px;
-  text-align: center;
+@media (min-width: 600px) and (max-width: 899px) {
+
+  .card,
+  .webcam {
+    width: 94%;
+    max-width: 940px;
+    margin: 0 auto;
+  }
+
+  .webcam video {
+    width: 100%;
+    height: 400px;        /* 🔹 Deutlich höheres Video */
+    object-fit: cover;
+    border-radius: 20px;
+  }
+
+  .webcam-link {
+    margin-top: 0.4rem;
+  }
 }
 
+/* =========================================================
+   ⚙️ Feintuning global
+   ========================================================= */
 .webcam-link {
   margin-top: 0.2rem;
   font-size: 0.9rem;
