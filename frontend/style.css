@@ -2,56 +2,53 @@
    🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam
    ========================================================= */
 
-/* ===== Grundlayout ===== */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-  overflow-x: hidden;
-  overflow-y: auto;
+/* ===== Allgemeines Layout ===== */
+:root{
+  --card-max: 520px;
+  --gap-main: 1.2rem;
+  --btn-glow: rgba(68,110,243,.35);
 }
+*{box-sizing:border-box}
 
 body {
   font-family: "Inter", system-ui, sans-serif;
   background: radial-gradient(circle at top, #e6f5ff 0%, #d9f0ff 100%);
   display: flex;
   justify-content: center;
-  align-items: center;
-  transition: all 0.4s ease;
+  align-items: flex-start;
+  min-height: 100vh;
+  margin: 0;
+  padding: 1.5rem 0;
 }
 
-/* ===== Container ===== */
+/* ===== Container für Karte + Webcam ===== */
 .tide-container {
   display: flex;
   flex-direction: column;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   width: 95%;
   max-width: 1300px;
-  gap: 1.2rem;
-  margin: 1.2rem auto; /* oben etwas mehr Abstand für alle Ansichten */
-  transition: all 0.4s ease-in-out;
+  margin: 0 auto;
+  gap: var(--gap-main);
 }
 
-/* ===== Karte ===== */
+/* ===== Gezeiten-Karte ===== */
 .card {
   background: white;
   padding: 1.3rem 1.8rem;
   border-radius: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
   width: 100%;
-  max-width: 520px;
+  max-width: var(--card-max);
   text-align: center;
   flex: 1;
-  box-sizing: border-box;
-  transition: all 0.4s ease-in-out;
+  transition: box-shadow .25s ease, transform .25s ease;
 }
 
 h1 {
-  font-size: 1.45rem;
+  font-size: 1.5rem;
   margin: 0.2rem 0 0.3rem 0;
-  line-height: 1.2;
-  white-space: nowrap;
 }
 
 h2 {
@@ -60,43 +57,25 @@ h2 {
   margin-bottom: 1rem;
 }
 
-/* ===== Statusanzeige ===== */
-.tide-icon {
-  font-size: 2rem;
-  margin-bottom: 0.3rem;
-}
+.tide-icon { font-size: 2rem; margin-bottom: 0.3rem; }
 
-.status {
-  font-weight: 700;
-  margin-bottom: 0.3rem;
-}
-
+.status { font-weight: 700; margin-bottom: 0.3rem; }
 .status.up { color: #2e7d32; }
 .status.down { color: #d32f2f; }
 
-.next {
-  color: #000;
-  font-size: 0.9rem;
-  margin-bottom: 1rem;
-}
+.next { color: #000; font-size: 0.9rem; margin-bottom: 1rem; }
 
-
-
-/* =========================================================
-   🎯 Präzise Korrektur der Button-Breiten und Abstände
-   ========================================================= */
-
-/* 🔹 Hauptbuttons (Heute / Morgen / Übermorgen) */
+/* ===== Primär-Buttons (Heute/Morgen/Übermorgen) ===== */
 .buttons {
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 1rem; /* etwas mehr Abstand, damit sie genau mit Dropdown abschließen */
+  gap: 1rem;                 /* etwas größerer Abstand → bündig mit Zeile darunter */
   margin-bottom: 1rem;
   width: 100%;
 }
 
-button {
+.btn {
   background: linear-gradient(180deg, #5b8df7, #446ef3);
   border: none;
   border-radius: 10px;
@@ -104,226 +83,165 @@ button {
   cursor: pointer;
   font-weight: 600;
   color: white;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-  transition: transform 0.1s ease, box-shadow 0.2s ease;
-  min-width: 105px; /* leichte Vergrößerung für perfekte Proportion */
+  min-width: 105px;          /* leichte Vergrößerung für harmonischen Look */
+  box-shadow: 0 2px 5px rgba(0,0,0,.1);
+  transition: transform .12s ease, box-shadow .2s ease;
 }
-
-/* 🔹 Pfeil-Buttons (< >) wieder schmaler wie am Anfang */
-.nav-btn {
-  background: linear-gradient(180deg, #5b8df7, #446ef3);
-  color: white;
-  border: none;
-  border-radius: 10px;
-  font-size: 1rem;
-  font-weight: 600;
-  width: 2.1rem;   /* zurück auf schlanke Breite */
-  height: 2.1rem;  /* harmonische Höhe */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-  transition: all 0.2s ease;
-}
-
-/* Hover- und Touchanimation bleiben gleich */
-.nav-btn:hover,
-.nav-btn:focus {
-  box-shadow: 0 0 10px rgba(68, 110, 243, 0.4), 0 3px 6px rgba(0, 0, 0, 0.15);
+.btn:hover {
   transform: translateY(-2px);
+  box-shadow: 0 0 12px var(--btn-glow), 0 3px 6px rgba(0,0,0,.15);
 }
-.nav-btn:active {
-  transform: scale(0.96);
-  box-shadow: 0 0 12px rgba(68, 110, 243, 0.5);
-  transition: all 0.1s ease;
+.btn:active {
+  transform: scale(.98);
+  box-shadow: 0 0 14px rgba(68,110,243,.5);
+}
+.btn.active{
+  background: linear-gradient(180deg, #315cf0, #284ce0);
+  box-shadow: inset 0 2px 5px rgba(0,0,0,.2);
 }
 
+/* ===== Datum-Navigation (‹ [Select] ›) ===== */
+.date-nav{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:.6rem;
+  margin-bottom:1rem;
+}
 
+.nav-btn{
+  background: linear-gradient(180deg, #5b8df7, #446ef3);
+  color:#fff;
+  border:none;
+  border-radius:10px;
+  width:2.15rem;              /* SCHMAL – wie gewünscht */
+  height:2.15rem;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-weight:700;
+  cursor:pointer;
+  box-shadow:0 2px 5px rgba(0,0,0,.1);
+  transition:transform .12s ease, box-shadow .2s ease, background .2s ease;
+}
+.nav-btn:hover{
+  transform:translateY(-2px);
+  box-shadow:0 0 10px var(--btn-glow), 0 3px 6px rgba(0,0,0,.15);
+}
+.nav-btn:active{
+  transform:scale(.96);
+  box-shadow:0 0 12px rgba(68,110,243,.5);
+}
 
+/* Dropdown schick + rund */
+select {
+  font-family: "Poppins", sans-serif;
+  background: white;
+  border: 1px solid #cfd7e6;
+  border-radius: 10px;
+  padding: 0.5rem 0.9rem;
+  font-size: 0.95rem;
+  min-width: 235px;
+  text-align: left;
+  box-shadow: 0 1px 3px rgba(0,0,0,.05);
+  transition: border-color .2s ease, box-shadow .2s;
+}
+select:focus {
+  outline: none;
+  border-color: #4c6ef5;
+  box-shadow: 0 0 0 3px rgba(76, 110, 245, 0.2);
+}
 
 /* ===== Tabelle ===== */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  text-align: center;
-  margin-top: 1rem;
-  font-size: 0.95rem;
-}
-
-th {
-  color: #666;
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid #ddd;
-  font-weight: 600;
-}
-
-td {
-  padding: 0.4rem 0;
-}
-
-tbody tr:nth-child(odd) {
-  background-color: #f9fbff;
-}
-
+table { width: 100%; border-collapse: collapse; text-align: center; margin-top: 1rem; font-size: 0.95rem; }
+th { color: #666; padding-bottom: 0.5rem; border-bottom: 1px solid #ddd; font-weight: 600; }
+td { padding: 0.4rem 0; }
+tbody tr:nth-child(odd) { background-color: #f9fbff; }
 tr.low td { color: #d32f2f; font-weight: 600; }
 tr.high td { color: #2e7d32; font-weight: 600; }
 
 /* ===== Footer ===== */
-footer {
-  margin-top: 0.5rem;
-  font-size: 0.7rem; /* kleiner, passt in eine Zeile */
-  color: #777;
-  white-space: nowrap;
-  text-align: center;
-}
+footer { margin-top: 0.6rem; font-size: 0.75rem; color: #777; }
+.error { color: #d32f2f; font-weight: 600; }
 
 /* ===== Webcam ===== */
 .webcam {
   flex: 1.6;
   width: 100%;
+  max-width: 1024px;
   text-align: center;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-
 .webcam video {
   width: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
   border-radius: 20px;
   background: #000;
   box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
   object-fit: cover;
-  transition: all 0.5s ease-in-out;
 }
-
-.webcam-link {
-  margin-top: 0.3rem;
-  font-size: 0.9rem;
-}
-
-.webcam-link a {
-  color: #0066cc;
-  text-decoration: none;
-}
-
-.webcam-link a:hover {
-  text-decoration: underline;
-}
+.webcam-link { margin-top: 0.3rem; font-size: 0.9rem; }
+.webcam-link a { color: #0066cc; text-decoration: none; }
+.webcam-link a:hover { text-decoration: underline; }
 
 /* =========================================================
-   📱 Smartphone Hochformat
+   📱 Smartphone Hochformat (bis 599px)
    ========================================================= */
 @media (max-width: 599px) {
-  h1 { font-size: 1.25rem; }
+  body{ padding: 1rem 0; }
 
-  .tide-container {
-    width: 90%;
-    margin-top: 1.3rem; /* etwas blauer Rand oben */
-  }
+  .card, .webcam { width: 92%; max-width: 92%; margin: 0 auto; }
+  .webcam video { width: 100%; height: 220px; object-fit: cover; border-radius: 20px; display: block; }
 
-  .buttons {
-    flex-wrap: wrap;
-    gap: 0.8rem;
-  }
-
-  .date-nav {
-    flex-direction: row;
-    justify-content: center;
-    gap: 0.5rem;
-  }
-
-  .webcam video {
-    height: 200px;
-  }
-
-  body { overflow-y: auto; }
+  footer { font-size: .72rem; } /* damit Quelle/Aktualisiert in eine Zeile passt */
 }
 
 /* =========================================================
-   📲 Tablet Hochformat
+   📲 Tablet Hochformat (600px – 899px)
    ========================================================= */
 @media (min-width: 600px) and (max-width: 899px) {
-  .tide-container {
-    width: 92%;
-    max-width: 940px;
-  }
-
-  .buttons, .date-nav {
-    display: flex;
-    flex-direction: row;
-    justify-content: center;
-    gap: 0.8rem; /* harmonisch zu Dropdown */
-  }
-
-  .card, .webcam {
-    width: 100%;
-    max-width: 940px;
-  }
-
+  .card, .webcam { width: 94%; max-width: 940px; margin: 0 auto; }
+  .card { margin-bottom: 0; }
   .webcam video {
-    height: 420px;
+    width: 100%;
+    height: calc(100vh - 300px);
+    max-height: 480px;
+    object-fit: cover;
   }
-
-  body { overflow-y: auto; }
 }
 
 /* =========================================================
-   💻 Desktop / Querformat
+   💻 Desktop / Querformat (ab 900px)
    ========================================================= */
 @media (min-width: 900px) {
-  html, body {
-    height: 100%;
-    overflow: hidden;
-  }
-
   .tide-container {
     flex-direction: row;
-    align-items: center;
+    align-items: stretch;
     justify-content: center;
-    gap: 1.8rem;
-    height: 100%;
-    max-width: 1300px;
+    gap: 1.5rem;
+    padding: 0 2.5rem;
   }
-
   .card {
     flex: 0 0 460px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
-    height: 80vh;
+    height: auto;
     padding-bottom: 1rem;
   }
-
-  .buttons {
-    gap: 0.8rem;
-  }
-
-  .date-nav {
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    gap: 0.5rem;
-  }
-
   .webcam {
     flex: 1;
-    height: 80vh;
+    max-width: 960px;
     display: flex;
     flex-direction: column;
+    justify-content: stretch;
   }
-
   .webcam video {
     flex-grow: 1;
     height: 100%;
+    object-fit: cover;
   }
-
-  footer { margin-top: 0.4rem; }
-}
-
-/* =========================================================
-   ⚙️ Feintuning global
-   ========================================================= */
-.webcam-link {
-  margin-top: 0.2rem;
-  font-size: 0.9rem;
 }
