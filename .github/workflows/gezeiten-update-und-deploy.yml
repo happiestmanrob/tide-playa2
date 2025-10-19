@@ -1,15 +1,14 @@
 name: "🌊 Gezeiten automatisch aktualisieren und veröffentlichen"
 
-
-
 on:
-  workflow_dispatch:
+  workflow_dispatch:      # Manuell starten möglich
   schedule:
-    - cron: "0 6 * * *"   # täglich 06:00 UTC
+    - cron: "0 6 * * *"   # Jeden Tag um 06:00 UTC
 
 jobs:
   update-and-deploy:
     runs-on: ubuntu-latest
+
 
     steps:
       # 1) Repo holen
