@@ -29,7 +29,7 @@
         <button id="btn-after" class="btn">Übermorgen</button>
       </div>
 
-      <!-- Datum-Navigation: ‹  [Select]  › -->
+      <!-- Datum-Navigation -->
       <div class="date-nav">
         <button id="btn-prev" class="nav-btn" aria-label="Vortag">‹</button>
         <select id="date-select" aria-label="Datum wählen"></select>
@@ -149,9 +149,9 @@
       return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     }
 
-    /* ==============================================
-       🔹 HIER NEUE FUNKTION: showDay() mit Fix
-       ============================================== */
+    /* =====================================================
+       🌊 showDay() – automatische Hoch-/Niedrigwasser-Logik
+       ===================================================== */
     function showDay(index) {
       activeIndex = index;
       updateButtons();
@@ -177,8 +177,18 @@
       const tbody = document.getElementById("tide-table");
       tbody.innerHTML = "";
 
-      /* 🧭 NEU:
-         Sicherstellen, dass sich Hochwasser und Niedrigwasser abwechseln */
+      // 🌐 Automatische Übersetzung und Formatierung
+      day.tides.forEach((t) => {
+        // Höhe mit Vorzeichen korrekt anzeigen
+        const h = parseFloat(t.hoehe_m).toFixed(2);
+        t.hoehe_m = parseFloat(h);
+
+        // Quelle auswerten – falls Englisch enthalten ist
+        if (t.typ?.toLowerCase().includes("high")) t.typ = "Hochwasser";
+        if (t.typ?.toLowerCase().includes("low")) t.typ = "Niedrigwasser";
+      });
+
+      // Abwechselnd Hoch/Niedrig sicherstellen
       for (let i = 1; i < day.tides.length; i++) {
         const prev = day.tides[i - 1];
         const curr = day.tides[i];
@@ -187,6 +197,7 @@
         }
       }
 
+      // Tabelle ausgeben
       day.tides.forEach((t) => {
         const tr = document.createElement("tr");
         tr.classList.add(t.typ === "Niedrigwasser" ? "low" : "high");
@@ -258,7 +269,7 @@
         `Quelle: tide-forecast.com <span>·</span> Aktualisiert: ${updated} WET`;
     }
 
-    // ◀︎ / ▶︎ Navigation (ein Tag zurück/weiter)
+    // Navigation
     function stepDay(delta) {
       const select = document.getElementById("date-select");
       const days = window.tideData;
@@ -269,7 +280,7 @@
     document.getElementById("btn-prev").addEventListener("click", () => stepDay(-1));
     document.getElementById("btn-next").addEventListener("click", () => stepDay(1));
 
-    // Schnellwahl Heute/Morgen/Übermorgen
+    // Schnellwahl
     document.getElementById("btn-today").onclick    = () => showDay(findTodayIndex(window.tideData));
     document.getElementById("btn-tomorrow").onclick = () => showDay(findTodayIndex(window.tideData) + 1);
     document.getElementById("btn-after").onclick    = () => showDay(findTodayIndex(window.tideData) + 2);
