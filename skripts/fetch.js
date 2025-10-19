@@ -55,11 +55,19 @@ async function scrapeTides() {
     days
   };
 
-  const outputDir = path.resolve("public/data");
-  if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
 
-  const outputFile = path.join(outputDir, "latest.json");
-  fs.writeFileSync(outputFile, JSON.stringify(result, null, 2), "utf8");
+const outputDir = path.resolve("data");
+if (!fs.existsSync(outputDir)) fs.mkdirSync(outputDir, { recursive: true });
+
+const outputFile = path.join(outputDir, "latest.json");
+fs.writeFileSync(outputFile, JSON.stringify(result, null, 2), "utf8");
+
+console.log(`✅ Erfolgreich gespeichert unter: ${outputFile}`);
+
+console.log(`🌊 Gezeitendaten für ${days.length} Tage erfolgreich geschrieben.`);
+console.log("📄 Beispiel:", result.days[0]);
+
+  
 
   console.log(`✅ Erfolgreich geschrieben: ${outputFile} (${days.length} Tage)`);
 }
