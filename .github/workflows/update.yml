@@ -1,0 +1,25 @@
+name: Update Tides
+
+on:
+  schedule:
+    - cron: "0 12 * * *"  # Jeden Tag um 12:00 UTC
+  workflow_dispatch:
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+      - run: pip install requests beautifulsoup4
+      - run: python update_tides.py
+      - name: Commit changes
+        run: |
+          git config user.name "GitHub Action"
+          git config user.email "actions@github.com"
+          git add data/latest.json
+          git commit -m "🌊 Auto-update tides"
+          git push
