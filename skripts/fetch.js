@@ -1,8 +1,11 @@
 // skripts/fetch.js
 import fs from "fs";
 import path from "path";
-import puppeteer from "puppeteer";
+import puppeteer from "puppeteer-extra";
+import StealthPlugin from "puppeteer-extra-plugin-stealth";
 import * as cheerio from "cheerio";
+
+puppeteer.use(StealthPlugin());
 
 const URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles/tides/latest";
 
@@ -20,21 +23,11 @@ function to24h(s) {
 }
 
 function parseDay($, container) {
-  // Datum finden
-  let dateISO = null;
-  const titleH4 = $(container).find("h4.tide-day__date").first().text().trim();
-  const titleH3 = $(container).find("h3").first().text().trim();
-  const title = titleH4 || titleH3;
-
+  const title = $(container).find("h4.tide-day__date, h3").first().text().trim();
   const dm = title.match(/([A-Za-z]+day)\s+(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})/);
-  if (dm) {
-    const [, , day, month, year] = dm;
-    dateISO = new Date(`${month} ${day}, ${year}`).toISOString().split("T")[0];
-  } else {
-    const tm = $(container).find("time[datetime]").attr("datetime");
-    if (tm) dateISO = tm;
-  }
-  if (!dateISO) return null;
+  if (!dm) return null;
+  const [, , day, month, year] = dm;
+  const dateISO = new Date(`${month} ${day}, ${year}`).toISOString().split("T")[0];
 
   const tides = [];
   $(container)
@@ -45,24 +38,20 @@ function parseDay($, container) {
 
       const typeText = $(tds[0]).text().trim();
       const timeText = $(tds[1]).text().trim();
-      const b = $(tds[2]).find("b.js-two-units-length-value__primary").first();
-      const heightText = (b.length ? b.text() : $(tds[2]).text()).trim();
+      const heightText = $(tds[2]).text().trim();
 
-      const typ =
-        typeText.includes("High") ? "Hochwasser" :
-        typeText.includes("Low") ? "Niedrigwasser" : null;
-      if (!typ) return;
-
-      const zeit = to24h(timeText);
+      const typ = typeText.includes("High") ? "Hochwasser" : "Niedrigwasser";
       const hm = heightText.match(/(-?\d+(?:\.\d+)?)\s*m/);
       if (!hm) return;
-      const hoehe_m = parseFloat(hm[1]);
 
-      tides.push({ zeit, typ, hoehe_m });
+      tides.push({
+        zeit: to24h(timeText),
+        typ,
+        hoehe_m: parseFloat(hm[1])
+      });
     });
 
-  if (!tides.length) return null;
-  return { date: dateISO, tides };
+  return tides.length ? { date: dateISO, tides } : null;
 }
 
 async function scrapeTides() {
@@ -74,8 +63,7 @@ async function scrapeTides() {
       "--no-sandbox",
       "--disable-setuid-sandbox",
       "--disable-dev-shm-usage",
-      "--disable-gpu",
-      "--single-process"
+      "--disable-gpu"
     ]
   });
 
@@ -83,17 +71,26 @@ async function scrapeTides() {
 
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
-    "AppleWebKit/537.36 (KHTML, like Gecko) " +
-    "Chrome/122.0.0.0 Safari/537.36"
+      "AppleWebKit/537.36 (KHTML, like Gecko) " +
+      "Chrome/122.0.0.0 Safari/537.36"
   );
 
-  await page.setViewport({ width: 1366, height: 900 });
-
   console.log("🔗 Öffne Seite:", URL);
-  await page.goto(URL, { waitUntil: "networkidle2", timeout: 90000 });
+  await page.goto(URL, { waitUntil: "domcontentloaded", timeout: 90000 });
 
-  // ⏳ Warte auf vollständiges Rendering (kompatibel mit allen Puppeteer-Versionen)
-  await new Promise(r => setTimeout(r, 5000));
+  // 🧩 Cookie-Banner automatisch akzeptieren
+  try {
+    await page.waitForSelector('button[mode="primary"], button[aria-label*="Accept"]', {
+      timeout: 5000
+    });
+    await page.click('button[mode="primary"], button[aria-label*="Accept"]');
+    console.log("🍪 Cookie-Dialog akzeptiert");
+  } catch {
+    console.log("✅ Kein Cookie-Dialog sichtbar");
+  }
+
+  // ⏳ Warten auf den Inhalt
+  await page.waitForSelector(".tide-day, .tide-header-today", { timeout: 20000 });
 
   const html = await page.content();
   await browser.close();
@@ -110,8 +107,8 @@ async function scrapeTides() {
   });
 
   if (!days.length) {
-    console.error("⚠️ Kein .tide-day-Container gefunden. Möglicherweise blockiert die Seite Headless-Zugriffe.");
-    console.error("HTML-Vorschau (gekürzt):", html.slice(0, 400));
+    console.error("❌ Keine Gezeiten-Daten gefunden!");
+    console.error("HTML-Vorschau (gekürzt):", html.slice(0, 500));
     throw new Error("Keine Gezeiten-Daten gefunden!");
   }
 
@@ -121,17 +118,18 @@ async function scrapeTides() {
       timezone: "Atlantic/Canary",
       generatedAt: new Date().toISOString()
     },
-    days: days
+    days
   };
 
   const outDir = path.resolve("data");
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, "latest.json");
   fs.writeFileSync(outFile, JSON.stringify(out, null, 2), "utf8");
+
   console.log(`✅ geschrieben: ${outFile} (Tage: ${days.length})`);
 }
 
-scrapeTides().catch((e) => {
-  console.error("🚨 Fehler:", e.message);
+scrapeTides().catch((err) => {
+  console.error("🚨 Fehler:", err.message);
   process.exit(1);
 });
