@@ -54,7 +54,6 @@ function parseDay($, container) {
       if (!typ) return;
 
       const zeit = to24h(timeText);
-
       const hm = heightText.match(/(-?\d+(?:\.\d+)?)\s*m/);
       if (!hm) return;
       const hoehe_m = parseFloat(hm[1]);
@@ -68,6 +67,7 @@ function parseDay($, container) {
 
 async function scrapeTides() {
   console.log("🌊 Lade Gezeiten …");
+
   const browser = await puppeteer.launch({
     headless: true,
     args: [
@@ -81,7 +81,6 @@ async function scrapeTides() {
 
   const page = await browser.newPage();
 
-  // 👉 Realistischen Browser-Header setzen
   await page.setUserAgent(
     "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
     "AppleWebKit/537.36 (KHTML, like Gecko) " +
@@ -93,8 +92,8 @@ async function scrapeTides() {
   console.log("🔗 Öffne Seite:", URL);
   await page.goto(URL, { waitUntil: "networkidle2", timeout: 90000 });
 
-  // ⏳ Warte etwas, damit das JS auf der Seite geladen ist
-  await page.waitFor(5000);
+  // ⏳ Warte auf vollständiges Rendering (kompatibel mit allen Puppeteer-Versionen)
+  await new Promise(r => setTimeout(r, 5000));
 
   const html = await page.content();
   await browser.close();
