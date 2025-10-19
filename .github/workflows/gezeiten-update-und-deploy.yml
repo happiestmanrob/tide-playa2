@@ -1,0 +1,73 @@
+name: Gezeiten automatisch aktualisieren und veröffentlichen
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 6 * * *"   # täglich 06:00 UTC
+
+jobs:
+  update-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1) Repo holen
+      - name: 🧩 Repository klonen
+        uses: actions/checkout@v4
+
+      # 2) Python bereitstellen (für BeautifulSoup-Scraper)
+      - name: 🐍 Python installieren
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: 📦 Bibliotheken für Python installieren
+        run: pip install requests beautifulsoup4
+
+      # 3) Python-Scraper laufen lassen (nicht abbrechen, wenn er fehlschlägt)
+      - name: 🌊 Gezeiten abrufen (Python – bevorzugt)
+        id: py
+        continue-on-error: true
+        run: |
+          echo "Starte Python-Scraper…"
+          python skripts/update_tides.py || exit 1
+
+      # 4) Node bereitstellen (Fallback für Puppeteer)
+      - name: ⚙️ Node.js installieren
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: 📦 Node-Abhängigkeiten installieren
+        run: npm install
+
+      # 5) Falls Python NICHT erfolgreich war ODER keine Datei entstanden ist:
+      - name: 🔁 Fallback: Puppeteer-Scraper (Node)
+        if: steps.py.outcome != 'success'
+        run: |
+          echo "Python-Scraper fehlgeschlagen oder abgebrochen – starte Puppeteer-Fallback…"
+          node skripts/fetch.js
+
+      - name: 🧪 Prüfen, ob data/latest.json existiert
+        run: |
+          test -f data/latest.json || (echo "❌ data/latest.json wurde nicht erzeugt!" && exit 1)
+
+      # 6) Frontend + Daten ins Veröffentlichungsverzeichnis kopieren
+      - name: 📂 Frontend und Daten in /public kopieren
+        run: |
+          mkdir -p public/data
+          cp -r frontend/* public/
+          cp data/latest.json public/data/latest.json
+
+      - name: ✅ Ausgabe verifizieren
+        run: |
+          echo "🔍 Verzeichnisstruktur:"
+          ls -R public
+          test -f public/index.html || (echo "❌ public/index.html fehlt!" && exit 1)
+          test -f public/data/latest.json || (echo "❌ public/data/latest.json fehlt!" && exit 1)
+
+      # 7) Deploy auf GitHub Pages
+      - name: 🚀 Deploy auf GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
