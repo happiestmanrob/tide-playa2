@@ -55,10 +55,9 @@ function parseDay($, container) {
 
       const zeit = to24h(timeText);
 
-      // Zahl inkl. Minus ODER 0.0 akzeptieren
       const hm = heightText.match(/(-?\d+(?:\.\d+)?)\s*m/);
       if (!hm) return;
-      const hoehe_m = parseFloat(hm[1]); // kann -0.08, 0.00, 2.13 etc. sein
+      const hoehe_m = parseFloat(hm[1]);
 
       tides.push({ zeit, typ, hoehe_m });
     });
@@ -71,11 +70,31 @@ async function scrapeTides() {
   console.log("🌊 Lade Gezeiten …");
   const browser = await puppeteer.launch({
     headless: "new",
-    args: ["--no-sandbox", "--disable-setuid-sandbox"]
+    args: [
+      "--no-sandbox",
+      "--disable-setuid-sandbox",
+      "--disable-dev-shm-usage",
+      "--disable-gpu",
+      "--single-process"
+    ]
   });
+
   const page = await browser.newPage();
-  await page.goto(URL, { waitUntil: "networkidle2", timeout: 60000 });
-  await page.waitForSelector(".tide-day, .tide-header-today", { timeout: 30000 });
+
+  // 👉 Realistischen Browser-Header setzen
+  await page.setUserAgent(
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+    "AppleWebKit/537.36 (KHTML, like Gecko) " +
+    "Chrome/122.0.0.0 Safari/537.36"
+  );
+
+  await page.setViewport({ width: 1366, height: 900 });
+
+  console.log("🔗 Öffne Seite:", URL);
+  await page.goto(URL, { waitUntil: "networkidle2", timeout: 90000 });
+
+  // kurz warten, damit JS wirklich geladen ist
+  await page.waitForTimeout(5000);
 
   const html = await page.content();
   await browser.close();
@@ -83,7 +102,6 @@ async function scrapeTides() {
   const $ = cheerio.load(html);
   const days = [];
 
-  // heute + weitere Tage
   $(".tide-header-today, .tide-day").each((_, el) => {
     const d = parseDay($, el);
     if (d) {
@@ -92,7 +110,12 @@ async function scrapeTides() {
     }
   });
 
-  if (!days.length) throw new Error("Keine Gezeiten-Daten gefunden!");
+  if (!days.length) {
+    // Zur Diagnose einmal das HTML loggen (gekürzt)
+    console.error("⚠️ Kein .tide-day-Container gefunden. Möglicherweise blockiert die Seite Headless-Zugriffe.");
+    console.error("HTML-Vorschau (gekürzt):", html.slice(0, 500));
+    throw new Error("Keine Gezeiten-Daten gefunden!");
+  }
 
   const out = {
     meta: {
@@ -103,7 +126,6 @@ async function scrapeTides() {
     days: days
   };
 
-  // 👉 immer hier ablegen – die Action kopiert es danach nach /public
   const outDir = path.resolve("data");
   fs.mkdirSync(outDir, { recursive: true });
   const outFile = path.join(outDir, "latest.json");
