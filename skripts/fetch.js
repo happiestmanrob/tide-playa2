@@ -69,7 +69,7 @@ function parseDay($, container) {
 async function scrapeTides() {
   console.log("🌊 Lade Gezeiten …");
   const browser = await puppeteer.launch({
-    headless: "new",
+    headless: true,
     args: [
       "--no-sandbox",
       "--disable-setuid-sandbox",
@@ -93,8 +93,8 @@ async function scrapeTides() {
   console.log("🔗 Öffne Seite:", URL);
   await page.goto(URL, { waitUntil: "networkidle2", timeout: 90000 });
 
-  // kurz warten, damit JS wirklich geladen ist
-  await page.waitForTimeout(5000);
+  // ⏳ Warte etwas, damit das JS auf der Seite geladen ist
+  await page.waitFor(5000);
 
   const html = await page.content();
   await browser.close();
@@ -111,9 +111,8 @@ async function scrapeTides() {
   });
 
   if (!days.length) {
-    // Zur Diagnose einmal das HTML loggen (gekürzt)
     console.error("⚠️ Kein .tide-day-Container gefunden. Möglicherweise blockiert die Seite Headless-Zugriffe.");
-    console.error("HTML-Vorschau (gekürzt):", html.slice(0, 500));
+    console.error("HTML-Vorschau (gekürzt):", html.slice(0, 400));
     throw new Error("Keine Gezeiten-Daten gefunden!");
   }
 
