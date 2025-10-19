@@ -15,64 +15,56 @@ jobs:
       - name: 📂 Repository klonen
         uses: actions/checkout@v4
 
-      # 🐍 2) Python installieren (für BeautifulSoup-Scraper)
-      - name: 🐍 Python installieren
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.x"
-
-      # 📦 3) Python-Bibliotheken installieren
-      - name: 📦 Bibliotheken für Python installieren
-        run: pip install requests beautifulsoup4
-
-      # 🌊 4) Python-Scraper ausführen
-      - name: 🌊 Gezeiten abrufen (Python)
-        id: py
-        continue-on-error: true
-        run: |
-          echo "Starte Python-Scraper..."
-          python skripts/update_tides.py
-
-      # ⚙️ 5) Node.js installieren (für Fallback + Deployment)
+      # ⚙️ 2) Node.js installieren
       - name: ⚙️ Node.js installieren
         uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      # 📦 6) Node-Abhängigkeiten installieren
+      # 📦 3) Node-Abhängigkeiten installieren
       - name: 📦 Node-Abhängigkeiten installieren
-        run: npm install
-
-      # 🔁 7) Fallback: Puppeteer-Scraper (nur falls Python fehlschlug)
-      - name: "🔁 Fallback: Puppeteer-Scraper (Node)"
-        if: steps.py.outcome != 'success'
         run: |
-          echo "Python-Scraper fehlgeschlagen – starte Puppeteer-Fallback..."
+          echo "📦 Installiere npm-Abhängigkeiten..."
+          npm install
+
+      # 🌊 4) Puppeteer-Scraper ausführen
+      - name: 🌊 Gezeiten abrufen (Puppeteer)
+        run: |
+          echo "Starte Puppeteer-Scraper..."
           node skripts/fetch.js
 
-      # 🧪 8) Prüfen, ob data/latest.json existiert
+      # ✅ 5) Prüfen, ob data/latest.json erzeugt wurde
       - name: ✅ Prüfen, ob data/latest.json existiert
         run: |
-          test -f data/latest.json || (echo "❌ Datei data/latest.json fehlt!" && exit 1)
+          if [ ! -f data/latest.json ]; then
+            echo "❌ Datei data/latest.json wurde nicht erzeugt!"
+            exit 1
+          else
+            echo "✅ Datei data/latest.json vorhanden."
+          fi
 
-      # 🗂️ 9) Frontend & Daten nach /public kopieren
+      # 🗂️ 6) Frontend & Daten nach /public kopieren
       - name: 🗂️ Frontend und Daten in /public kopieren
         run: |
+          echo "📂 Kopiere Frontend-Dateien und aktualisierte Gezeiten-Daten..."
           mkdir -p public/data
-          cp -r frontend/* public/
+          cp -r frontend/* public/ || echo "⚠️ Kein frontend/-Ordner vorhanden"
           cp data/latest.json public/data/latest.json
 
-      # 🔍 10) Überprüfen der Ausgabe
+      # 🔍 7) Überprüfen der Ausgabe
       - name: 🔍 Ausgabe verifizieren
         run: |
           echo "📁 Verzeichnisstruktur von /public:"
           ls -R public
           test -f public/index.html || (echo "❌ public/index.html fehlt!" && exit 1)
           test -f public/data/latest.json || (echo "❌ public/data/latest.json fehlt!" && exit 1)
+          echo "✅ Alle notwendigen Dateien vorhanden."
 
-      # 🚀 11) Deployment auf GitHub Pages
+      # 🚀 8) Deployment auf GitHub Pages
       - name: 🚀 Auf GitHub Pages veröffentlichen
         uses: peaceiris/actions-gh-pages@v3
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./public
+          publish_branch: gh-pages
+          force_orphan: true
