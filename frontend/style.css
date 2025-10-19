@@ -322,6 +322,10 @@ footer {
    💻 Desktop / Querformat (ab 900px)
    ========================================================= */
 @media (min-width: 900px) {
+  body {
+    padding-top: 1.5rem; /* ➕ kleiner Abstand oben wieder da */
+  }
+
   .tide-container {
     flex-direction: row;
     align-items: stretch;
@@ -353,3 +357,4 @@ footer {
     object-fit: cover;
   }
 }
+
