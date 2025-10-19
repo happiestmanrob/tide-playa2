@@ -22,7 +22,7 @@ jobs:
         run: pip install requests beautifulsoup4
 
       - name: 🌊 Gezeiten abrufen
-        run: python scripts/update_tides.py
+        run: python skripts/update_tides.py
 
       - name: 💾 Änderungen committen
         run: |
