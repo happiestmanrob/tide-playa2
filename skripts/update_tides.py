@@ -4,8 +4,8 @@ import json
 from datetime import datetime
 import sys
 
-# 🌍 URL der Quelle
-BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles-Canarias-Spain"
+# 🌍 URL der Quelle (aktualisiert)
+BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles/tides/latest"
 URLS = [
     f"{BASE_URL}/tides/latest",
     f"{BASE_URL}/tides"
