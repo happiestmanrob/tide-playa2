@@ -149,6 +149,9 @@
       return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     }
 
+    /* ==============================================
+       🔹 HIER NEUE FUNKTION: showDay() mit Fix
+       ============================================== */
     function showDay(index) {
       activeIndex = index;
       updateButtons();
@@ -173,6 +176,17 @@
 
       const tbody = document.getElementById("tide-table");
       tbody.innerHTML = "";
+
+      /* 🧭 NEU:
+         Sicherstellen, dass sich Hochwasser und Niedrigwasser abwechseln */
+      for (let i = 1; i < day.tides.length; i++) {
+        const prev = day.tides[i - 1];
+        const curr = day.tides[i];
+        if (prev.typ === curr.typ) {
+          curr.typ = prev.typ === "Hochwasser" ? "Niedrigwasser" : "Hochwasser";
+        }
+      }
+
       day.tides.forEach((t) => {
         const tr = document.createElement("tr");
         tr.classList.add(t.typ === "Niedrigwasser" ? "low" : "high");
