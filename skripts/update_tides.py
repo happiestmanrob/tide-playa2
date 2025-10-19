@@ -1,142 +1,139 @@
-import requests
-from bs4 import BeautifulSoup
+# skripts/update_tides.py
+import re
 import json
 from datetime import datetime
-import sys
+import requests
+from bs4 import BeautifulSoup
 
-# 🌍 URL der Quelle (aktualisiert)
-BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles"
+HEADERS = {"User-Agent": "Mozilla/5.0"}
 
-URLS = [
-    f"{BASE_URL}/tides/latest",
-    f"{BASE_URL}/tides"
-]
+# Eine valide Basis-URL reicht – keine Verdopplungen mehr
+BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles/tides/latest"
 
-]
+def fetch_html(url: str) -> str:
+    r = requests.get(url, headers=HEADERS, timeout=30)
+    r.raise_for_status()
+    return r.text
 
-def fetch_html():
-    headers = {"User-Agent": "Mozilla/5.0 (compatible; TideBot/1.0; +https://github.com/happiestmanrob/tide-playa)"}
-    for url in URLS:
-        print(f"🌐 Versuche, Daten von {url} zu laden …")
-        try:
-            r = requests.get(url, headers=headers, timeout=20)
-            r.raise_for_status()
-            if "Tide Times" in r.text or "Hochwasser" in r.text or "Low Tide" in r.text:
-                print(f"✅ Erfolgreich geladen: {url}")
-                return r.text
-        except requests.HTTPError as e:
-            print(f"⚠️ Fehler ({url}): {e}")
-        except Exception as e:
-            print(f"❌ Unerwarteter Fehler bei {url}: {e}")
-    raise RuntimeError("Keine gültige Tide-Seite gefunden oder HTML-Struktur geändert.")
+def to_24h(s: str) -> str:
+    # akzeptiert "6:39 PM", "00:12 AM", auch "06:17"
+    m = re.search(r"(\d{1,2}):(\d{2})\s*(AM|PM)?", s, re.I)
+    if not m:
+        return s.strip()
+    h, mnt, ap = m.group(1), m.group(2), m.group(3)
+    h = int(h)
+    if ap:
+        ap = ap.upper()
+        if ap == "PM" and h < 12: h += 12
+        if ap == "AM" and h == 12: h = 0
+    return f"{h:02d}:{mnt}"
 
-def parse_tides(html):
+def parse_date(text: str) -> str | None:
+    # z. B. "Wednesday 05 November 2025"
+    m = re.search(r"([A-Za-z]+day)\s+(\d{1,2})\s+([A-Za-z]+)\s+(\d{4})", text)
+    if not m:
+        return None
+    day, month, year = m.group(2), m.group(3), m.group(4)
+    return datetime.strptime(f"{day} {month} {year}", "%d %B %Y").strftime("%Y-%m-%d")
+
+def parse_day(container: BeautifulSoup) -> dict | None:
+    # Versuche Datum an mehreren Stellen
+    date_iso = None
+    h4 = container.find("h4", class_="tide-day__date")
+    if h4:
+        date_iso = parse_date(h4.get_text(" ", strip=True))
+    if not date_iso:
+        h3 = container.find("h3")
+        if h3:
+            date_iso = parse_date(h3.get_text(" ", strip=True))
+    if not date_iso:
+        time_tag = container.find("time")
+        if time_tag and time_tag.has_attr("datetime"):
+            date_iso = time_tag["datetime"]
+
+    if not date_iso:
+        return None
+
+    tides = []
+    for row in container.select("table.tide-day-tides tbody tr"):
+        tds = row.find_all("td")
+        if len(tds) < 3:
+            continue
+
+        typ_raw = tds[0].get_text(" ", strip=True)
+        time_raw = tds[1].get_text(" ", strip=True)
+        # Höhe steht im <b class="js-two-units-length-value__primary">
+        b = tds[2].find("b", class_="js-two-units-length-value__primary")
+        height_raw = (b.get_text(" ", strip=True) if b else tds[2].get_text(" ", strip=True))
+
+        # Typ übersetzen anhand des Textes (nicht über Schwellenwerte!)
+        if "High" in typ_raw:
+            typ_de = "Hochwasser"
+        elif "Low" in typ_raw:
+            typ_de = "Niedrigwasser"
+        else:
+            continue
+
+        # Zeit nach 24h
+        zeit = to_24h(time_raw)
+
+        # Zahl inkl. Minus und 0.0 extrahieren
+        m = re.search(r"(-?\d+(?:\.\d+)?)\s*m", height_raw)
+        if not m:
+            continue
+        hoehe_m = float(m.group(1))   # kann negativ oder 0.0 sein
+
+        tides.append({
+            "zeit": zeit,
+            "typ": typ_de,
+            "hoehe_m": hoehe_m
+        })
+
+    if not tides:
+        return None
+
+    return {"date": date_iso, "tides": tides}
+
+def scrape() -> dict:
+    html = fetch_html(BASE_URL)
     soup = BeautifulSoup(html, "html.parser")
-    day_blocks = soup.select("div.tide-day")
 
-    if not day_blocks:
-        raise RuntimeError("⚠️ Keine <div class='tide-day'>-Blöcke gefunden — Struktur geändert?")
+    # Heute und kommende Tage abdecken
+    blocks = []
+    blocks += soup.select("div.tide-header-today")   # heute
+    blocks += soup.select("div.tide-day")            # weitere Tage
 
-    days_data = []
+    days = []
+    for box in blocks:
+        day = parse_day(box)
+        if day:
+            days.append(day)
 
-    for day_block in day_blocks:
-        # Datum finden
-        date_header = day_block.find("h3")
-        if not date_header:
-            continue
+    if not days:
+        raise RuntimeError("Keine Tagesblöcke mit Gezeiten gefunden (Seitenstruktur geändert?).")
 
-        date_text = date_header.get_text(strip=True)
-        date_obj = None
-
-        for fmt in ["%A %d %B %Y", "%A %d %b %Y"]:
-            try:
-                date_obj = datetime.strptime(date_text.replace("Tide Times for Playa del Ingles:", "").strip(), fmt)
-                break
-            except ValueError:
-                continue
-
-        if not date_obj:
-            time_tag = day_block.find("time")
-            if time_tag and time_tag.has_attr("datetime"):
-                try:
-                    date_obj = datetime.strptime(time_tag["datetime"], "%Y-%m-%d")
-                except ValueError:
-                    pass
-
-        if not date_obj:
-            print(f"⚠️ Kein gültiges Datum erkannt in: {date_text}")
-            continue
-
-        day_data = {"date": date_obj.strftime("%Y-%m-%d"), "tides": []}
-
-        # Tabelle auslesen
-        rows = day_block.select("table.tide-day-tides tbody tr")
-        for row in rows:
-            cols = row.find_all("td")
-            if len(cols) < 3:
-                continue
-
-            typ = cols[0].get_text(strip=True)
-            zeit_raw = cols[1].get_text(strip=True).split(" ")[0]
-            height_tag = cols[2].find("b", class_="js-two-units-length-value_primary")
-
-            if not height_tag:
-                continue
-
-            try:
-                zeit_obj = datetime.strptime(zeit_raw, "%I:%M%p")
-                zeit_str = zeit_obj.strftime("%H:%M")
-            except ValueError:
-                zeit_str = zeit_raw
-
-            try:
-                hoehe_m = float(height_tag.get_text(strip=True).replace("m", "").strip())
-            except ValueError:
-                hoehe_m = None
-
-            if "High" in typ:
-                typ_de = "Hochwasser"
-            elif "Low" in typ:
-                typ_de = "Niedrigwasser"
-            else:
-                typ_de = typ
-
-            if hoehe_m is not None:
-                day_data["tides"].append({
-                    "zeit": zeit_str,
-                    "typ": typ_de,
-                    "hoehe_m": hoehe_m
-                })
-
-        if day_data["tides"]:
-            days_data.append(day_data)
-
-    if not days_data:
-        raise RuntimeError("⚠️ Keine Gezeitendaten extrahiert.")
+    # Nach Datum sortieren & Duplikate (falls heute doppelt) zusammenführen
+    by_date = {}
+    for d in days:
+        by_date.setdefault(d["date"], []).extend(d["tides"])
+    days = [{"date": k, "tides": v} for k, v in sorted(by_date.items(), key=lambda x: x[0])]
 
     return {
         "meta": {
             "location": "Playa del Inglés",
             "timezone": "Atlantic/Canary",
-            "source": BASE_URL,
-            "generatedAt": datetime.utcnow().isoformat() + "Z"
+            "generatedAt": datetime.utcnow().isoformat()
         },
-        "days": days_data
+        "days": days
     }
 
-def save_json(data, path="data/latest.json"):
-    import os
-    os.makedirs("data", exist_ok=True)
+def save_json(data: dict, path: str = "data/latest.json") -> None:
+    from pathlib import Path
+    Path("data").mkdir(parents=True, exist_ok=True)
     with open(path, "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False, indent=2)
-    print(f"✅ JSON-Datei gespeichert unter: {path}")
+    print(f"✅ geschrieben: {path}  (Tage: {len(data.get('days', []))})")
 
 if __name__ == "__main__":
-    try:
-        html = fetch_html()
-        data = parse_tides(html)
-        save_json(data)
-        print("🎉 Fertig! Gezeiten erfolgreich aktualisiert.")
-    except Exception as e:
-        print(f"❌ Fehler beim Scrapen: {e}")
-        sys.exit(1)
+    data = scrape()
+    save_json(data)
