@@ -167,16 +167,20 @@
       const tbody = document.getElementById("tide-table");
       tbody.innerHTML = "";
 
-      // 🔹 Hier keine Vermutungen mehr, sondern 1:1 Anzeige aus JSON
+      // 🔹 1:1 Anzeige aus JSON — unterstützt Minus und 0.00 korrekt
       day.tides.forEach((t) => {
         const typ = t.typ.trim();
-        const hoehe = Number(t.hoehe_m).toFixed(2);
+        const hoehe =
+          t.hoehe_m === 0
+            ? "0.00"
+            : (t.hoehe_m || 0).toFixed(2).replace("-", "−");
+
         const tr = document.createElement("tr");
         tr.classList.add(typ === "Niedrigwasser" ? "low" : "high");
         tr.innerHTML = `
           <td>${formatTime(t.zeit)}</td>
           <td>${typ}</td>
-          <td>${hoehe}</td>
+          <td>${hoehe} m</td>
         `;
         tbody.appendChild(tr);
       });
