@@ -22,18 +22,18 @@
       <div class="status" id="tide-status">Das Wasser steigt</div>
       <div class="next" id="next-high">nächstes Hochwasser um –:– Uhr</div>
 
-      <!-- Buttons: Heute / Morgen / Übermorgen -->
+      <!-- Buttons -->
       <div class="buttons">
         <button id="btn-today" class="btn active">Heute</button>
         <button id="btn-tomorrow" class="btn">Morgen</button>
         <button id="btn-after" class="btn">Übermorgen</button>
       </div>
 
-      <!-- Datum-Navigation -->
+      <!-- Datumsauswahl -->
       <div class="date-nav">
-        <button id="btn-prev" class="nav-btn" aria-label="Vortag">‹</button>
-        <select id="date-select" aria-label="Datum wählen"></select>
-        <button id="btn-next" class="nav-btn" aria-label="Folgetag">›</button>
+        <button id="btn-prev" class="nav-btn">‹</button>
+        <select id="date-select"></select>
+        <button id="btn-next" class="nav-btn">›</button>
       </div>
 
       <table>
@@ -149,9 +149,6 @@
       return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
     }
 
-    /* =====================================================
-       🌊 showDay() – automatische Hoch-/Niedrigwasser-Logik
-       ===================================================== */
     function showDay(index) {
       activeIndex = index;
       updateButtons();
@@ -159,52 +156,27 @@
       const day = window.tideData[index];
       const dateObj = new Date(day.date);
       const now = new Date();
-      const timeStr = now.toLocaleTimeString("de-DE", {
-        hour: "2-digit",
-        minute: "2-digit",
-      });
+      const timeStr = now.toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" });
 
       document.getElementById("date-display").textContent =
-        dateObj.toLocaleDateString("de-DE", {
-          weekday: "long",
-          day: "numeric",
-          month: "long",
-          year: "numeric",
-        }) + `, ${timeStr} Uhr`;
+        dateObj.toLocaleDateString("de-DE", { weekday: "long", day: "numeric", month: "long", year: "numeric" }) +
+        `, ${timeStr} Uhr`;
 
       document.getElementById("date-select").value = day.date;
 
       const tbody = document.getElementById("tide-table");
       tbody.innerHTML = "";
 
-      // 🌐 Automatische Übersetzung und Formatierung
+      // 🔹 Hier keine Vermutungen mehr, sondern 1:1 Anzeige aus JSON
       day.tides.forEach((t) => {
-        // Höhe mit Vorzeichen korrekt anzeigen
-        const h = parseFloat(t.hoehe_m).toFixed(2);
-        t.hoehe_m = parseFloat(h);
-
-        // Quelle auswerten – falls Englisch enthalten ist
-        if (t.typ?.toLowerCase().includes("high")) t.typ = "Hochwasser";
-        if (t.typ?.toLowerCase().includes("low")) t.typ = "Niedrigwasser";
-      });
-
-      // Abwechselnd Hoch/Niedrig sicherstellen
-      for (let i = 1; i < day.tides.length; i++) {
-        const prev = day.tides[i - 1];
-        const curr = day.tides[i];
-        if (prev.typ === curr.typ) {
-          curr.typ = prev.typ === "Hochwasser" ? "Niedrigwasser" : "Hochwasser";
-        }
-      }
-
-      // Tabelle ausgeben
-      day.tides.forEach((t) => {
+        const typ = t.typ.trim();
+        const hoehe = Number(t.hoehe_m).toFixed(2);
         const tr = document.createElement("tr");
-        tr.classList.add(t.typ === "Niedrigwasser" ? "low" : "high");
+        tr.classList.add(typ === "Niedrigwasser" ? "low" : "high");
         tr.innerHTML = `
           <td>${formatTime(t.zeit)}</td>
-          <td>${t.typ}</td>
-          <td>${t.hoehe_m.toFixed(2)}</td>
+          <td>${typ}</td>
+          <td>${hoehe}</td>
         `;
         tbody.appendChild(tr);
       });
@@ -224,7 +196,6 @@
       const nowMinutes = now.getHours() * 60 + now.getMinutes();
       const todayISO = new Date().toISOString().split("T")[0];
       const selectedDateISO = day.date;
-
       const allDays = window.tideData;
       const idx = allDays.findIndex((d) => d.date === selectedDateISO);
 
@@ -269,7 +240,6 @@
         `Quelle: tide-forecast.com <span>·</span> Aktualisiert: ${updated} WET`;
     }
 
-    // Navigation
     function stepDay(delta) {
       const select = document.getElementById("date-select");
       const days = window.tideData;
@@ -277,10 +247,10 @@
       const next = Math.min(Math.max(idx + delta, 0), days.length - 1);
       showDay(next);
     }
+
     document.getElementById("btn-prev").addEventListener("click", () => stepDay(-1));
     document.getElementById("btn-next").addEventListener("click", () => stepDay(1));
 
-    // Schnellwahl
     document.getElementById("btn-today").onclick    = () => showDay(findTodayIndex(window.tideData));
     document.getElementById("btn-tomorrow").onclick = () => showDay(findTodayIndex(window.tideData) + 1);
     document.getElementById("btn-after").onclick    = () => showDay(findTodayIndex(window.tideData) + 2);
