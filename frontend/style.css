@@ -1,5 +1,5 @@
 /* =========================================================
-   🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam (V2.1)
+   🌊 STYLE.CSS – Playa del Inglés · Tide + Webcam (V2.2)
    ========================================================= */
 
 /* ===== Allgemeines Layout ===== */
@@ -24,11 +24,11 @@ body {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  min-height: 100dvh; /* dynamisch, kein heller Balken unten mehr */
+  min-height: 100dvh;
   overflow-x: hidden;
 }
 
-/* ===== Container für Karte + Webcam ===== */
+/* ===== Container ===== */
 .tide-container {
   display: flex;
   flex-direction: column;
@@ -74,12 +74,8 @@ h2 {
   font-weight: 700;
   margin-bottom: 0.3rem;
 }
-.status.up {
-  color: #2e7d32;
-}
-.status.down {
-  color: #d32f2f;
-}
+.status.up { color: #2e7d32; }
+.status.down { color: #d32f2f; }
 
 .next {
   color: #000;
@@ -87,7 +83,7 @@ h2 {
   margin-bottom: 1rem;
 }
 
-/* ===== Primär-Buttons (Heute/Morgen/Übermorgen) ===== */
+/* ===== Buttons ===== */
 .buttons {
   display: flex;
   justify-content: center;
@@ -122,7 +118,7 @@ h2 {
   box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 
-/* ===== Datum-Navigation (‹ [Select] ›) ===== */
+/* ===== Datum-Navigation ===== */
 .date-nav {
   display: flex;
   align-items: center;
@@ -155,16 +151,16 @@ h2 {
   box-shadow: 0 0 12px rgba(68, 110, 243, 0.5);
 }
 
-/* ===== Dropdown schöner + zentriert ===== */
+/* ===== Dropdown ===== */
 select {
-  font-family: "Poppins", sans-serif;
+  font-family: "Inter", system-ui, sans-serif;
   background: white;
   border: 1px solid #cfd7e6;
   border-radius: 10px;
   padding: 0.5rem 0.9rem;
   font-size: 0.95rem;
   min-width: 230px;
-  text-align: center; /* zentriert */
+  text-align: center;
   appearance: none;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
   transition: border-color 0.2s ease, box-shadow 0.2s;
@@ -182,32 +178,32 @@ table {
   text-align: center;
   margin-top: 1rem;
   font-size: 0.95rem;
-  table-layout: fixed; /* verhindert Springen */
+  table-layout: fixed;
+  font-family: "Inter", system-ui, sans-serif; /* Einheitliche Schrift */
 }
+
 th, td {
   width: 33%;
   text-align: center;
+  font-weight: normal;
 }
+
 th {
   color: #666;
   padding-bottom: 0.5rem;
   border-bottom: 1px solid #ddd;
   font-weight: 600;
 }
+
 td {
   padding: 0.4rem 0;
+  font-variant-numeric: tabular-nums; /* saubere Zahlenbreite */
+  font-family: inherit; /* gleiche Schriftart wie der Rest */
 }
-tbody tr:nth-child(odd) {
-  background-color: #f9fbff;
-}
-tr.low td {
-  color: #d32f2f;
-  font-weight: 600;
-}
-tr.high td {
-  color: #2e7d32;
-  font-weight: 600;
-}
+
+tbody tr:nth-child(odd) { background-color: #f9fbff; }
+tr.low td { color: #d32f2f; font-weight: 600; }
+tr.high td { color: #2e7d32; font-weight: 600; }
 
 /* ===== Footer ===== */
 footer {
@@ -245,48 +241,33 @@ footer {
   color: #0066cc;
   text-decoration: none;
 }
-.webcam-link a:hover {
-  text-decoration: underline;
-}
+.webcam-link a:hover { text-decoration: underline; }
 
-/* =========================================================
-   📱 Smartphone Hochformat (bis 599px)
-   ========================================================= */
+/* ===== Smartphone (bis 599px) ===== */
 @media (max-width: 599px) {
-  .card,
-  .webcam {
+  .card, .webcam {
     width: 92%;
     max-width: 92%;
     margin: 0 auto;
   }
 
-  /* Titel etwas kleiner, damit Emoji in eine Zeile passt */
   h1 {
     font-size: 1.25rem;
     line-height: 1.25rem;
     margin-top: 0.3rem;
-    white-space: nowrap; /* verhindert Zeilenumbruch */
+    white-space: nowrap;
   }
 
-  h2 {
-    font-size: 0.85rem;
-    margin-bottom: 0.9rem;
-  }
+  h2 { font-size: 0.85rem; margin-bottom: 0.9rem; }
 
-  /* Buttons enger – passen in eine Zeile */
-  .buttons {
-    gap: 0.4rem;
-    flex-wrap: nowrap;
-  }
+  .buttons { gap: 0.4rem; flex-wrap: nowrap; }
 
   .btn {
     min-width: 90px;
     padding: 0.5rem 0.8rem;
   }
 
-  footer {
-    font-size: 0.68rem;
-  }
+  footer { font-size: 0.68rem; }
 
   .webcam video {
     width: 100%;
@@ -296,35 +277,24 @@ footer {
   }
 }
 
-/* =========================================================
-   📲 Tablet Hochformat (600px – 899px)
-   ========================================================= */
+/* ===== Tablet (600–899px) ===== */
 @media (min-width: 600px) and (max-width: 899px) {
-  .card,
-  .webcam {
+  .card, .webcam {
     width: 94%;
     max-width: 940px;
     margin: 0 auto;
   }
-
-  .card {
-    margin-bottom: 0;
-  }
-
+  .card { margin-bottom: 0; }
   .webcam video {
     width: 100%;
-    max-height: 420px; /* Kein Scrollen mehr */
+    max-height: 420px;
     object-fit: cover;
   }
 }
 
-/* =========================================================
-   💻 Desktop / Querformat (ab 900px)
-   ========================================================= */
+/* ===== Desktop (ab 900px) ===== */
 @media (min-width: 900px) {
-  body {
-    padding-top: 1.5rem; /* ➕ kleiner Abstand oben wieder da */
-  }
+  body { padding-top: 1.5rem; }
 
   .tide-container {
     flex-direction: row;
@@ -356,52 +326,4 @@ footer {
     height: 100%;
     object-fit: cover;
   }
-}
-
-
-
-
-/* =========================================================
-   ⚙️ Zusatz: Werte-Ausrichtung & typografisch saubere Zahlen
-   ========================================================= */
-
-/* Tabellenwerte gleich breit, zentriert und monospaced */
-td {
-  font-variant-numeric: tabular-nums; /* gleiche Ziffernbreite */
-  font-family: "Inter", system-ui, sans-serif;
-  text-align: center;
-}
-
-/* Höhe-Spalte: Dezimalzahlen stabil & klar erkennbar */
-td:last-child {
-  font-family: "Roboto Mono", monospace;
-  letter-spacing: 0.02em;
-  text-align: center;
-}
-
-/* Minuszeichen etwas Abstand, damit es nicht klebt */
-td:last-child::first-letter {
-  margin-right: 0.05em;
-}
-
-/* Optional: visuelle Hervorhebung negativer Werte */
-tr.low td:last-child {
-  color: #d32f2f;
-}
-
-/* Einheitliche Schriftart für Tabelleninhalt */
-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-family: inherit; /* gleiche Schriftart wie der Rest */
-}
-
-table td, table th {
-  padding: 0.4em 0.8em;
-  text-align: center;
-  font-weight: normal;
-}
-
-table td {
-  font-family: inherit; /* sicherstellen, dass Zahlen keine andere Schrift haben */
 }
