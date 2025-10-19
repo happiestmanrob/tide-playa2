@@ -358,3 +358,34 @@ footer {
   }
 }
 
+
+
+
+/* =========================================================
+   ⚙️ Zusatz: Werte-Ausrichtung & typografisch saubere Zahlen
+   ========================================================= */
+
+/* Tabellenwerte gleich breit, zentriert und monospaced */
+td {
+  font-variant-numeric: tabular-nums; /* gleiche Ziffernbreite */
+  font-family: "Inter", system-ui, sans-serif;
+  text-align: center;
+}
+
+/* Höhe-Spalte: Dezimalzahlen stabil & klar erkennbar */
+td:last-child {
+  font-family: "Roboto Mono", monospace;
+  letter-spacing: 0.02em;
+  text-align: center;
+}
+
+/* Minuszeichen etwas Abstand, damit es nicht klebt */
+td:last-child::first-letter {
+  margin-right: 0.05em;
+}
+
+/* Optional: visuelle Hervorhebung negativer Werte */
+tr.low td:last-child {
+  color: #d32f2f;
+}
+
