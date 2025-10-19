@@ -389,3 +389,19 @@ tr.low td:last-child {
   color: #d32f2f;
 }
 
+/* Einheitliche Schriftart für Tabelleninhalt */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: inherit; /* gleiche Schriftart wie der Rest */
+}
+
+table td, table th {
+  padding: 0.4em 0.8em;
+  text-align: center;
+  font-weight: normal;
+}
+
+table td {
+  font-family: inherit; /* sicherstellen, dass Zahlen keine andere Schrift haben */
+}
