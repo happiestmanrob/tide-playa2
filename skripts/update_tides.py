@@ -5,10 +5,13 @@ from datetime import datetime
 import sys
 
 # 🌍 URL der Quelle (aktualisiert)
-BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles/tides/latest"
+BASE_URL = "https://www.tide-forecast.com/locations/Playa-del-Ingles"
+
 URLS = [
     f"{BASE_URL}/tides/latest",
     f"{BASE_URL}/tides"
+]
+
 ]
 
 def fetch_html():
