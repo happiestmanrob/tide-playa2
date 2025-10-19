@@ -21,12 +21,11 @@ jobs:
         with:
           node-version: "20"
 
-- name: 📦 Node-Abhängigkeiten installieren
-  run: |
-    npm install --no-fund --no-audit
-    npm install puppeteer puppeteer-extra puppeteer-extra-plugin-stealth cheerio --no-fund --no-audit
-
-
+      # 📦 3) Node-Abhängigkeiten installieren (inkl. Stealth-Modul)
+      - name: 📦 Node-Abhängigkeiten installieren
+        run: |
+          npm install --no-fund --no-audit
+          npm install puppeteer puppeteer-extra puppeteer-extra-plugin-stealth cheerio --no-fund --no-audit
 
       # 🌊 4) Puppeteer-Scraper ausführen
       - name: 🌊 Gezeiten abrufen (Puppeteer)
