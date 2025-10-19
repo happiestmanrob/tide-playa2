@@ -1,4 +1,4 @@
-name: "🌊 Gezeiten automatisch aktualisieren und veröffentlichen"
+name: Gezeiten automatisch aktualisieren und veröffentlichen
 
 on:
   workflow_dispatch:      # Manuell starten möglich
