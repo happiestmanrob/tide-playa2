@@ -51,7 +51,15 @@ jobs:
           cp -r frontend/* public/ || echo "⚠️ Kein frontend/-Ordner vorhanden"
           cp data/latest.json public/data/latest.json
 
-      # 🔍 7) Überprüfen der Ausgabe
+      # 🌟 7) Favicons & Manifest-Dateien kopieren (aus Root)
+      - name: 🌟 Favicons & Manifest kopieren
+        run: |
+          echo "📦 Kopiere Favicons und Manifest-Dateien..."
+          cp favicon.png public/ || echo "⚠️ favicon.png fehlt"
+          cp apple-touch-icon.png public/ || echo "⚠️ apple-touch-icon.png fehlt"
+          cp site.webmanifest public/ || echo "⚠️ site.webmanifest fehlt"
+
+      # 🔍 8) Überprüfen der Ausgabe
       - name: 🔍 Ausgabe verifizieren
         run: |
           echo "📁 Verzeichnisstruktur von /public:"
@@ -60,7 +68,7 @@ jobs:
           test -f public/data/latest.json || (echo "❌ public/data/latest.json fehlt!" && exit 1)
           echo "✅ Alle notwendigen Dateien vorhanden."
 
-      # 🚀 8) Deployment auf GitHub Pages
+      # 🚀 9) Deployment auf GitHub Pages
       - name: 🚀 Auf GitHub Pages veröffentlichen
         uses: peaceiris/actions-gh-pages@v3
         with:
