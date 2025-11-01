@@ -1,0 +1,293 @@
+<!DOCTYPE html><html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday! 🎉</title>
+  <!--
+  🎁 Anleitung (kurz):
+  1) Du kannst das hochauflösende Bild auf zwei Arten laden:
+     a) Datei auswählen: Starte die Seite und klicke unten links auf „Bild wählen“. (Nichts wird hochgeladen; bleibt lokal im Browser.)
+     b) Feste Datei: Lege dein Bild als "photo.jpg" neben diese HTML-Datei oder trage unten im <img> ein eigenes src ein.
+  2) Auf „Happy Birthday“ klicken → Konfetti → Foto erscheint in Vollbild-Viewer.
+  3) Bedienung im Viewer:
+     • Mausrad / Trackpad: zoomt zum Mauszeiger hin.
+     • Ziehen/Schieben: Bild verschieben (bei >100% Zoom).
+     • Doppelklick / Taste R: Zoom zurücksetzen.
+     • Taste F oder Button: Browser-Vollbild umschalten.
+     • Taste H: UI ein-/ausblenden.⚙️ Tipp: Für Bestresultate das Bild mind. in Originalgröße laden. Sehr große Bilder sind ok – der Viewer rendert sie skaliert und zoomt verlustarm. -->
+
+  <style>
+    :root{
+      --bg: #0b0c10;
+      --fg: #e5e7eb;
+      --accent: #ff7ac3; /* Button-Glow */
+    }
+    html, body {
+      margin: 0; height: 100%; background: var(--bg); color: var(--fg);
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial, Noto Sans, "Apple Color Emoji", "Segoe UI Emoji";
+    }
+    .center-screen {
+      position: fixed; inset: 0; display: grid; place-items: center; gap: 1rem; text-align: center;
+      background: radial-gradient(1200px 800px at 50% 50%, #141621 0%, var(--bg) 70%);
+    }
+    h1 { font-size: clamp(2rem, 6vw, 5rem); margin: .2em 0; letter-spacing: .5px; }
+    .sub { opacity: .8; font-size: clamp(1rem, 2.2vw, 1.25rem); }
+
+    .hb-btn {
+      appearance: none; border: 0; cursor: pointer;
+      font-weight: 700; font-size: clamp(1rem, 2.8vw, 1.25rem);
+      padding: 1rem 1.5rem; border-radius: 999px; color: #0b0c10; background: #f9d649;
+      box-shadow: 0 10px 30px rgba(249,214,73,.25), 0 0 0 0 var(--accent);
+      transition: transform .06s ease, box-shadow .4s ease; will-change: transform;
+    }
+    .hb-btn:hover { transform: translateY(-1px); }
+    .hb-btn:active { transform: translateY(1px) scale(.99); }
+
+    /* Toolbar */
+    .toolbar {
+      position: fixed; left: 16px; bottom: 16px; display: flex; gap: 8px; z-index: 10; align-items: center;
+      background: rgba(20,22,33,.6); backdrop-filter: blur(6px); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px; padding: 8px; box-shadow: 0 8px 30px rgba(0,0,0,.35);
+    }
+    .tool-btn, .file-label {
+      appearance: none; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.06);
+      color: var(--fg); padding: 8px 12px; border-radius: 10px; font-weight: 600; font-size: 14px;
+      display: inline-flex; align-items: center; gap: 8px; cursor: pointer;
+    }
+    .tool-btn:hover, .file-label:hover { background: rgba(255,255,255,.12); }
+    .tool-btn:active { transform: translateY(1px); }
+    .file-input { display: none; }
+
+    /* Viewer */
+    .viewer { position: fixed; inset: 0; background: #000; display: none; overflow: hidden; }
+    .stage { position: absolute; inset: 0; touch-action: none; cursor: grab; }
+    .stage.grabbing { cursor: grabbing; }
+    .img-layer { position: absolute; top: 50%; left: 50%; transform-origin: 0 0; }
+    .hud { position: fixed; top: 16px; right: 16px; display: flex; gap: 8px; z-index: 12; }
+    .chip { background: rgba(0,0,0,.45); color: #fff; border: 1px solid rgba(255,255,255,.1);
+            border-radius: 999px; padding: 6px 10px; font-size: 12px; }
+
+    /* Canvas für Konfetti */
+    #confettiCanvas { position: fixed; inset: 0; pointer-events: none; }
+    .hide { display: none !important; }
+  </style></head>
+<body>
+  <canvas id="confettiCanvas"></canvas>  <div id="intro" class="center-screen">
+    <div>
+      <h1>Happy Birthday, <span id="nameSpan">❤️</span>!</h1>
+      <p class="sub">Klick auf den Button für eine Überraschung.</p>
+    </div>
+    <button id="goBtn" class="hb-btn" aria-label="Happy Birthday jetzt starten">Happy Birthday 🎉</button>
+  </div>  <div id="viewer" class="viewer" aria-live="polite">
+    <!-- HUD rechts oben -->
+    <div id="hud" class="hud">
+      <div id="zoomChip" class="chip">100%</div>
+      <div id="hintChip" class="chip">Doppelklick: Reset · F: Vollbild · H: HUD</div>
+    </div><!-- Bild-Bühne -->
+<div id="stage" class="stage" role="region" aria-label="Foto-Viewer"></div>
+
+<!-- Toolbar unten links -->
+<div class="toolbar" id="toolbar">
+  <label class="file-label" for="fileInput">📷 Bild wählen</label>
+  <input id="fileInput" class="file-input" type="file" accept="image/*" />
+  <button id="resetBtn" class="tool-btn" type="button">🔄 Reset</button>
+  <button id="fullscreenBtn" class="tool-btn" type="button">⛶ Vollbild</button>
+  <button id="hideUiBtn" class="tool-btn" type="button">🙈 HUD</button>
+</div>
+
+  </div>  <!-- Optionaler statischer Fallback: Wenn du eine feste Datei nutzen willst, ersetze src hier und entferne display:none im Script, wenn geladen. -->  <img id="preloadImg" src="photo.jpg" alt="Geburtstagsfoto" style="display:none" /><script>
+(function(){
+  const goBtn = document.getElementById('goBtn');
+  const intro = document.getElementById('intro');
+  const viewer = document.getElementById('viewer');
+  const stage = document.getElementById('stage');
+  const fileInput = document.getElementById('fileInput');
+  const resetBtn = document.getElementById('resetBtn');
+  const fullscreenBtn = document.getElementById('fullscreenBtn');
+  const hideUiBtn = document.getElementById('hideUiBtn');
+  const zoomChip = document.getElementById('zoomChip');
+  const hud = document.getElementById('hud');
+  const preloadImg = document.getElementById('preloadImg');
+
+  // ======= Konfetti =======
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const ctx = confettiCanvas.getContext('2d');
+  let confetti = [], rafId = null;
+  const COLORS = ['#f9d649','#ff7ac3','#7afcff','#baffc9','#ffd6a5','#b28dff'];
+
+  function resize(){
+    confettiCanvas.width = window.innerWidth;
+    confettiCanvas.height = window.innerHeight;
+  }
+  window.addEventListener('resize', resize); resize();
+
+  function burstConfetti(particles=180, duration=1600){
+    confetti = [];
+    for(let i=0;i<particles;i++){
+      const angle = Math.random()*Math.PI*2;
+      const speed = 3 + Math.random()*5;
+      confetti.push({
+        x: confettiCanvas.width/2,
+        y: confettiCanvas.height/2,
+        vx: Math.cos(angle)*speed,
+        vy: Math.sin(angle)*speed - 4,
+        g: 0.12 + Math.random()*0.18,
+        s: 6 + Math.random()*6,
+        rot: Math.random()*Math.PI,
+        vr: (Math.random()-.5)*0.3,
+        color: COLORS[(Math.random()*COLORS.length)|0],
+        shape: Math.random()<0.5?'rect':'circ',
+        life: duration + Math.random()*500
+      });
+    }
+    const start = performance.now();
+    cancelAnimationFrame(rafId);
+    (function tick(now){
+      const t = now - start;
+      ctx.clearRect(0,0,confettiCanvas.width, confettiCanvas.height);
+      confetti.forEach(p=>{
+        p.vy += p.g; p.x += p.vx; p.y += p.vy; p.rot += p.vr; p.life -= 16;
+        ctx.save();
+        ctx.translate(p.x, p.y); ctx.rotate(p.rot);
+        ctx.fillStyle = p.color;
+        if(p.shape==='rect'){
+          ctx.fillRect(-p.s/2, -p.s/2, p.s, p.s*0.6);
+        } else {
+          ctx.beginPath(); ctx.arc(0,0,p.s*0.45,0,Math.PI*2); ctx.fill();
+        }
+        ctx.restore();
+      });
+      if(t < duration){ rafId = requestAnimationFrame(tick); }
+      else { // sanft ausblenden
+        ctx.globalAlpha = Math.max(0, 1 - (t - duration)/400);
+        confetti = confetti.filter(p=>p.life>0);
+        if(ctx.globalAlpha>0 && confetti.length>0){ rafId = requestAnimationFrame(tick); }
+        else { ctx.clearRect(0,0,confettiCanvas.width,confettiCanvas.height); ctx.globalAlpha = 1; }
+      }
+    })(start);
+  }
+
+  // ======= Bild-Viewer =======
+  let imgEl = null;
+  let scale = 1, minScale = 1, maxScale = 12;
+  let tx = 0, ty = 0; // translation
+  const fitMargin = 24; // Rand für "contain"
+
+  function setZoomChip(){ zoomChip.textContent = Math.round(scale*100) + '%'; }
+
+  function ensureBounds(){
+    if(!imgEl) return;
+    const rect = stage.getBoundingClientRect();
+    const w = imgEl.naturalWidth * scale;
+    const h = imgEl.naturalHeight * scale;
+    const minX = Math.min(0, (rect.width - w)/2);
+    const maxX = Math.max(0, (rect.width - w)/2);
+    const minY = Math.min(0, (rect.height - h)/2);
+    const maxY = Math.max(0, (rect.height - h)/2);
+    tx = Math.max(minX, Math.min(maxX, tx));
+    ty = Math.max(minY, Math.min(maxY, ty));
+  }
+
+  function applyTransform(){
+    if(!imgEl) return;
+    imgEl.style.transform = `translate(${tx}px, ${ty}px) scale(${scale}) translate(-50%, -50%)`;
+    setZoomChip();
+  }
+
+  function fitToScreen(){
+    if(!imgEl) return;
+    const rect = stage.getBoundingClientRect();
+    const sX = (rect.width - fitMargin*2) / imgEl.naturalWidth;
+    const sY = (rect.height - fitMargin*2) / imgEl.naturalHeight;
+    minScale = Math.min(sX, sY);
+    scale = Math.max(minScale, 1); // Mindestens 100%
+    tx = 0; ty = 0; applyTransform();
+  }
+
+  function resetZoom(){ scale = Math.max(minScale, 1); tx = 0; ty = 0; applyTransform(); }
+
+  function wheelZoom(e){
+    if(!imgEl) return;
+    e.preventDefault();
+    const rect = stage.getBoundingClientRect();
+    const mx = e.clientX - rect.left; const my = e.clientY - rect.top;
+
+    const prevScale = scale;
+    const delta = -e.deltaY; // up = zoom in
+    const factor = Math.exp(delta * 0.0015); // smooth
+    scale = Math.min(maxScale, Math.max(minScale, scale * factor));
+
+    // Zoom auf Mauszeiger – anpassen der Translation
+    const imgX = (mx - tx - rect.width/2) / prevScale;
+    const imgY = (my - ty - rect.height/2) / prevScale;
+    tx = mx - (imgX * scale) - rect.width/2;
+    ty = my - (imgY * scale) - rect.height/2;
+
+    ensureBounds();
+    applyTransform();
+  }
+
+  let dragging = false, lastX = 0, lastY = 0;
+  function onPointerDown(e){ if(!imgEl) return; dragging = true; lastX = e.clientX; lastY = e.clientY; stage.classList.add('grabbing'); stage.setPointerCapture(e.pointerId); }
+  function onPointerMove(e){ if(dragging){ tx += (e.clientX - lastX); ty += (e.clientY - lastY); lastX = e.clientX; lastY = e.clientY; ensureBounds(); applyTransform(); } }
+  function onPointerUp(e){ dragging = false; stage.classList.remove('grabbing'); try{ stage.releasePointerCapture(e.pointerId);}catch(_){} }
+
+  function toggleFullScreen(){
+    const el = document.documentElement;
+    if (!document.fullscreenElement) { (el.requestFullscreen && el.requestFullscreen()); }
+    else { (document.exitFullscreen && document.exitFullscreen()); }
+  }
+
+  function toggleHUD(){ hud.classList.toggle('hide'); document.getElementById('toolbar').classList.toggle('hide'); }
+
+  function loadBlobUrlFromFile(file){
+    if(!file) return; const url = URL.createObjectURL(file); loadImage(url);
+  }
+
+  function loadImage(src){
+    const img = new Image(); img.decoding = 'async'; img.className = 'img-layer';
+    img.onload = () => {
+      // altes Bild entfernen
+      stage.innerHTML = ''; stage.appendChild(img); imgEl = img;
+      fitToScreen();
+    };
+    img.onerror = () => alert('Bild konnte nicht geladen werden.');
+    img.src = src;
+  }
+
+  // ======= Flow: Intro -> Konfetti -> Viewer =======
+  goBtn.addEventListener('click', () => {
+    burstConfetti();
+    // Nach Konfetti den Viewer zeigen
+    setTimeout(() => {
+      intro.style.display = 'none'; viewer.style.display = 'block';
+      // Falls eine feste Datei existiert (preload erfolgreich), verwenden
+      if(preloadImg.complete && preloadImg.naturalWidth){ loadImage(preloadImg.src); }
+    }, 1200);
+  });
+
+  // Datei wählen
+  fileInput.addEventListener('change', (e)=> loadBlobUrlFromFile(e.target.files?.[0]));
+
+  // Controls
+  resetBtn.addEventListener('click', resetZoom);
+  fullscreenBtn.addEventListener('click', toggleFullScreen);
+  hideUiBtn.addEventListener('click', toggleHUD);
+
+  stage.addEventListener('wheel', wheelZoom, { passive: false });
+  stage.addEventListener('pointerdown', onPointerDown);
+  stage.addEventListener('pointermove', onPointerMove);
+  stage.addEventListener('pointerup', onPointerUp);
+  stage.addEventListener('pointercancel', onPointerUp);
+
+  stage.addEventListener('dblclick', resetZoom);
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', (e)=>{
+    if(e.key==='f' || e.key==='F') toggleFullScreen();
+    if(e.key==='h' || e.key==='H') toggleHUD();
+    if(e.key==='r' || e.key==='R') resetZoom();
+  });
+})();
+</script></body>
+</html> 
