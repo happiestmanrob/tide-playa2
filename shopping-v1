@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shopping – Liste (v4.4.2 offline)</title>
+<style>
+:root{
+ --bg:#faf8f6;--card:#fff;--ink:#1f2937;--muted:#6b7280;
+ --accent:#f97316;--accent-600:#ea580c;--accent-100:#fff7ed;
+ --ring:rgba(249,115,22,.35);--danger:#ef4444;--shadow:0 10px 25px rgba(0,0,0,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px system-ui,-apple-system,Segoe UI,Roboto}
+.container{max-width:1100px;margin:26px auto;padding:0 16px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px}
+.title{flex:1}
+.title input{width:100%;text-align:center;font:700 clamp(18px,3vw,28px) system-ui,-apple-system,Segoe UI,Roboto;border:1px solid #e5e7eb;border-radius:10px;padding:8px 12px;background:#fff}
+.title input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 8px 16px rgba(249,115,22,.25)}
+.btn:hover{background:var(--accent-600)}.btn.ghost{background:transparent;color:var(--accent-600);border:2px solid var(--accent-600)}
+.btn.muted{background:#eee;color:#111}.btn.danger{background:var(--danger)}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.cell{grid-column:span 3}.w4{grid-column:span 4}.w2{grid-column:span 2}
+@media(max-width:900px){.cell,.w4,.w2{grid-column:span 6}}
+@media(max-width:580px){.cell,.w4,.w2{grid-column:1/-1}}
+label.small{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+input[type=text],input[type=number]{width:100%;padding:11px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none;transition:.2s}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
+thead th{font-size:12px;color:#6b7280;text-align:left;padding:4px 8px}
+thead th.r{text-align:right}
+tbody td{background:#fff;border:1px solid #eee;padding:10px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+tbody td:first-child{border-right:0;border-radius:10px 0 0 10px}
+tbody td:last-child{border-left:0;border-radius:0 10px 10px 0}
+.r{text-align:right}
+.group{font-weight:800;background:var(--accent);color:#fff;border:1px solid var(--accent-600);border-radius:10px;padding:8px 12px;margin:6px 0;display:flex;justify-content:space-between;align-items:center}
+.group .label{font-size:14px}
+.plus{width:32px;height:32px;border-radius:8px;border:2px solid #ffe3cc;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(234,88,12,.18)}
+.icon{width:36px;height:36px;border-radius:10px;border:1px solid #eee;background:#fff;display:flex;align-items:center;justify-content:center}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.summary div{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:8px 12px}
+.footer{text-align:center;color:#6b7280;margin:14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:9999}
+.toast.show{opacity:1;pointer-events:auto}
+#printHdr{display:none}
+
+/* --- PDF Layout --- */
+@media print{
+  body{font-size:10pt;background:#fff}
+  .header,.grid,.summary,.footer,.btn,.icon,input.plus{display:none!important}
+  .container{max-width:100%;padding:0;margin:0}
+  #printHdr{display:block;text-align:center;margin:0 auto 10px auto;padding-top:6px}
+  #printHdr .brand{color:#ea580c;font-weight:900;text-align:center;margin:0;font-size:15pt}
+  #printHdr .meta{font-size:10pt;margin-top:4px;margin-bottom:8px;text-align:center}
+  table{border-collapse:collapse;margin:0 22px;width:calc(100% - 44px)}
+  thead th{background:#fff3e9;border-bottom:1px solid #ffd7ba}
+  tbody td{border:1px solid #eee;padding:4px 6px;white-space:normal}
+  .group{background:var(--accent);color:#fff;border:1px solid var(--accent-600);border-radius:8px;padding:4px 8px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
+  @page{margin:12mm}
+}
+input.file-input{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="title"><input id="titleInput" type="text"></div>
+    <button id="newListBtn" class="btn ghost">Neue Liste</button>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="cell"><label class="small">Ort</label><input id="loc" list="dlLoc" type="text"><datalist id="dlLoc"></datalist></div>
+      <div class="cell"><label class="small">Geschäft</label><input id="store" list="dlStore" type="text"><datalist id="dlStore"></datalist></div>
+      <div class="cell w4"><label class="small">Artikel</label><input id="item" list="dlItem" type="text"><datalist id="dlItem"></datalist></div>
+      <div class="cell w2"><label class="small">Originalpreis (€)</label><input id="orig" type="number" step="0.01"></div>
+      <div class="cell w2"><label class="small">Kaufpreis (€)</label><input id="paid" type="number" step="0.01"></div>
+      <div class="cell w2" style="align-self:end"><button id="addTop" class="btn">+ Artikel hinzufügen</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <thead><tr><th>Artikel</th><th class="r">Originalpreis</th><th class="r">Kaufpreis</th><th class="r"></th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+
+    <div class="summary">
+      <div><b>Gesamtwert:</b> <span id="sumO">–</span></div>
+      <div><b>Ausgegeben:</b> <span id="sumP">–</span></div>
+      <div><b>Gespart:</b> <span id="sumS">–</span> <span id="sumPct">(–)</span></div>
+      <div>
+        <input id="file" type="file" class="file-input" accept=".json,application/json,.csv,text/csv">
+        <button id="btnImp" class="btn muted">Importieren…</button>
+        <button id="btnCsv" class="btn">Export CSV</button>
+        <button id="btnJson" class="btn">Export JSON</button>
+        <button id="btnPdf" class="btn">Export PDF</button>
+        <button id="btnClr" class="btn danger">Löschen</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">Lokal gespeichert – Version 4.4.2</div>
+</div>
+
+<div id="printHdr"><div class="brand" id="pdfTitle"></div><div class="meta" id="pdfMeta"></div></div>
+<div id="toast" class="toast"></div>
+
+<script>
+(()=>{const $=id=>document.getElementById(id),
+fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'}),
+numFmt=new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}),
+euro=n=>fmt.format(+n||0),euroToNum=v=>parseFloat((''+v).replace(/[^0-9,.-]/g,'').replace(',','.'))||0,
+toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1400)},
+pad=n=>(''+n).padStart(2,'0');const d=new Date(),def='Shopping – '+pad(d.getDate())+'.'+pad(d.getMonth()+1)+'.'+d.getFullYear();
+$('titleInput').value=localStorage.getItem('title')||def;$('titleInput').addEventListener('input',()=>localStorage.setItem('title',$('titleInput').value));
+let items=JSON.parse(localStorage.getItem('items')||'[]');
+const save=()=>localStorage.setItem('items',JSON.stringify(items));
+const tbody=$('body');
+function render(){
+ tbody.innerHTML='';
+ const o=items.reduce((a,b)=>a+euroToNum(b.o),0),
+ p=items.reduce((a,b)=>a+euroToNum(b.p),0),
+ s=o-p,pc=o?100*s/o:0;
+ $('sumO').textContent=euro(o);$('sumP').textContent=euro(p);
+ $('sumS').textContent=euro(s);$('sumPct').textContent='('+numFmt.format(pc)+' %)';
+ const groups={};items.forEach(x=>{const k=(x.l||'')+'|'+(x.s||'');(groups[k]=groups[k]||[]).push(x)});
+ Object.keys(groups).forEach(k=>{
+  const [l,s]=k.split('|');
+  const tr=document.createElement('tr');const td=document.createElement('td');
+  td.colSpan=4;td.innerHTML=`<div class="group"><div class="label">${[l,s].filter(Boolean).join(' – ')}</div><button class="plus" data-add="${k}">+</button></div>`;
+  tr.append(td);tbody.append(tr);
+  groups[k].forEach(it=>{
+   const tr2=document.createElement('tr');tr2.dataset.id=it.id;
+   tr2.innerHTML=`<td>${it.i}</td><td class="r">${euro(it.o)}</td><td class="r">${euro(it.p)}</td>
+   <td class="r"><button class="icon" data-edit="${it.id}">✏️</button></td>`;tbody.append(tr2);
+  });
+ });
+}
+tbody.addEventListener('click',e=>{
+ const b=e.target.closest('button');if(!b)return;
+ if(b.dataset.add){const [l,s]=b.dataset.add.split('|');
+  const tr=document.createElement('tr');
+  tr.innerHTML=`<td><input></td><td><input type=number></td><td><input type=number></td>
+  <td><button data-save>💾</button><button data-cancel>❌</button></td>`;
+  b.closest('tr').after(tr);
+  tr.querySelector('[data-save]').onclick=()=>{
+   const i=tr.querySelectorAll('input');
+   items.push({id:Date.now()+Math.random(),l,s,i:i[0].value,o:euroToNum(i[1].value),p:euroToNum(i[2].value)});
+   save();render();toast('Gespeichert');
+  };
+  tr.querySelector('[data-cancel]').onclick=()=>{tr.remove()};
+ }
+ if(b.dataset.edit){const id=b.dataset.edit;const r=items.find(x=>x.id==id);
+  const row=b.closest('tr');
+  row.innerHTML=`<td><input value="${r.i}"></td><td><input type=number value="${r.o}"></td><td><input type=number value="${r.p}"></td>
+  <td><button data-saveid="${id}">💾</button><button data-delid="${id}">🗑️</button><button data-cancelid="${id}">❌</button></td>`;
+  row.querySelector('[data-saveid]').onclick=()=>{const i=row.querySelectorAll('input');r.i=i[0].value;r.o=euroToNum(i[1].value);r.p=euroToNum(i[2].value);save();render();toast('Aktualisiert')};
+  row.querySelector('[data-delid]').onclick=()=>{if(confirm('Löschen?')){items=items.filter(x=>x.id!=id);save();render()}};
+  row.querySelector('[data-cancelid]').onclick=()=>render();
+ }
+});
+$('addTop').onclick=()=>{
+ const l=$('loc').value.trim(),s=$('store').value.trim(),i=$('item').value.trim(),o=euroToNum($('orig').value),p=euroToNum($('paid').value);
+ if(!i)return alert('Artikel fehlt');
+ items.push({id:Date.now()+Math.random(),l,s,i,o,p});save();render();
+ $('item').value='';$('orig').value='';$('paid').value='';toast('Hinzugefügt');$('item').focus();
+};
+$('btnClr').onclick=()=>{if(confirm('Liste löschen?')){items=[];save();render();}};
+$('newListBtn').onclick=()=>{$('btnClr').click()};
+$('btnPdf').onclick=()=>{
+ const o=items.reduce((a,b)=>a+euroToNum(b.o),0),
+ p=items.reduce((a,b)=>a+euroToNum(b.p),0),
+ s=o-p,pc=o?100*s/o:0;
+ $('pdfTitle').textContent=$('titleInput').value.trim();
+ $('pdfMeta').textContent='Gesamtwert: '+euro(o)+' | Ausgegeben: '+euro(p)+' | Gespart: '+euro(s)+' ('+numFmt.format(pc)+' %)';
+ window.print();
+};
+render();})();
+</script>
+</body>
+</html>
