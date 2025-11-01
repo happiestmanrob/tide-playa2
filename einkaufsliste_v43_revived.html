@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shopping – Rabatte & Ersparnis (v4.3 revived)</title>
+<style>
+:root{
+ --bg:#faf8f6;--card:#fff;--ink:#1f2937;--muted:#6b7280;
+ --accent:#f97316;--accent-600:#ea580c;--accent-100:#fff7ed;
+ --ring:rgba(249,115,22,.35);--danger:#ef4444;--shadow:0 10px 25px rgba(0,0,0,.08)
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15.5px system-ui,-apple-system,Segoe UI,Roboto}
+.container{max-width:1100px;margin:26px auto;padding:0 16px}
+.header{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px}
+.title{font-weight:800;font-size:clamp(18px,3vw,28px);display:flex;gap:8px;align-items:center}
+.title input{font:inherit;font-weight:700;border:1px solid #e5e7eb;border-radius:8px;padding:2px 6px;width:160px;text-align:center}
+.pill{background:var(--accent-100);color:var(--accent-600);padding:6px 10px;border-radius:999px;font-weight:600}
+.card{background:var(--card);border-radius:16px;box-shadow:var(--shadow);padding:16px;margin-bottom:12px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:10px}
+.cell{grid-column:span 3}.w4{grid-column:span 4}.w2{grid-column:span 2}
+@media(max-width:900px){.cell,.w4,.w2{grid-column:span 6}}
+@media(max-width:580px){.cell,.w4,.w2{grid-column:1/-1}}
+label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+input[type=text],input[type=number]{width:100%;padding:11px;border:1px solid #e5e7eb;border-radius:12px;background:#fff;outline:none;transition:.2s box-shadow,.2s border-color}
+input:focus{border-color:var(--accent);box-shadow:0 0 0 4px var(--ring)}
+.btn{border:0;border-radius:12px;padding:10px 14px;font-weight:700;background:var(--accent);color:#fff;cursor:pointer;box-shadow:0 8px 16px rgba(249,115,22,.25)}
+.btn:hover{background:var(--accent-600)}.btn.ghost{background:transparent;color:var(--accent-600);border:2px solid var(--accent-600)}
+.btn.muted{background:#eee;color:#111}.btn.danger{background:var(--danger)}
+.icon{width:36px;height:36px;border-radius:10px;border:1px solid #eee;background:#fff;display:inline-flex;align-items:center;justify-content:center;transition:.15s transform}
+.icon:hover{transform:translateY(-1px)}
+.plus{width:32px;height:32px;border-radius:8px;border:2px solid #ffe3cc;background:var(--accent);color:#fff;font-weight:900;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;box-shadow:0 4px 10px rgba(234,88,12,.18)}
+.plus:hover{background:var(--accent-600)}
+.group{font-weight:800;background:var(--accent);color:#fff;border:1px solid var(--accent-600);border-radius:10px;padding:6px 10px;margin:6px 0;display:flex;justify-content:space-between;align-items:center}
+.group .label{font-size:14px}
+table{width:100%;border-collapse:separate;border-spacing:0 6px;table-layout:fixed}
+thead th{font-size:12px;color:#6b7280;text-align:left;padding:4px 8px}
+thead th.r{text-align:right}
+tbody td{background:#fff;border:1px solid #eee;padding:10px 8px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle}
+tbody td:first-child{border-right:0;border-radius:10px 0 0 10px}
+tbody td:last-child{border-left:0;border-radius:0 10px 10px 0}
+.r{text-align:right}
+.summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.summary div{background:#fff;border-radius:10px;box-shadow:var(--shadow);padding:8px 12px}
+.footer{text-align:center;color:#6b7280;margin:14px}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:18px;background:#111;color:#fff;padding:10px 14px;border-radius:10px;box-shadow:var(--shadow);opacity:0;pointer-events:none;transition:.25s;z-index:9999}
+.toast.show{opacity:1;pointer-events:auto}
+#printHdr{display:none}
+@media print{
+ body{font-size:10pt;background:#fff}
+ .header,.grid,.summary,.footer,.btn,.icon,input,.plus{display:none!important}
+ .container{max-width:100%;padding:0;margin:0}
+ #printHdr{display:block;margin:0 22px 8px}
+ #printHdr .brand{color:#ea580c;font-weight:900;text-align:center;margin:10px 0 2px 0;font-size:14pt}
+ #printHdr .meta{font-size:10pt;margin:0 0 10px 0;text-align:center}
+ table{border-collapse:collapse;margin:0 22px}
+ thead th{background:#fff3e9;border-bottom:1px solid #ffd7ba}
+ tbody td{border:1px solid #eee;padding:4px 6px;white-space:normal}
+ .group{background:var(--accent);color:#fff;border:1px solid var(--accent-600);border-radius:8px;padding:4px 8px;margin:8px 0;display:flex;justify-content:space-between;align-items:center}
+ @page{margin:12mm}
+}
+input.file-input{display:none}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="title">Shopping – 
+      <input id="titleInput" type="text" value="">
+      <span class="pill">Rabatte & Ersparnis</span>
+    </div>
+    <button id="newListBtn" class="btn ghost">Neue Liste</button>
+  </div>
+
+  <div class="card">
+    <div class="grid">
+      <div class="cell"><label>Ort</label><input id="loc" list="dlLoc" type="text"><datalist id="dlLoc"></datalist></div>
+      <div class="cell"><label>Geschäft</label><input id="store" list="dlStore" type="text"><datalist id="dlStore"></datalist></div>
+      <div class="cell w4"><label>Artikel</label><input id="item" list="dlItem" type="text"><datalist id="dlItem"></datalist></div>
+      <div class="cell w2"><label>Originalpreis (€)</label><input id="orig" type="number" step="0.01"></div>
+      <div class="cell w2"><label>Kaufpreis (€)</label><input id="paid" type="number" step="0.01"></div>
+      <div class="cell w2" style="align-self:end"><button id="addTop" class="btn">+ Artikel hinzufügen</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <table>
+      <colgroup><col><col style="width:96px"><col style="width:96px"><col style="width:140px"></colgroup>
+      <thead><tr><th>Artikel</th><th class="r">Originalpreis</th><th class="r">Kaufpreis</th><th class="r"></th></tr></thead>
+      <tbody id="body"></tbody>
+    </table>
+    <div class="summary">
+      <div><b>Gesamtwert:</b> <span id="sumO">–</span></div>
+      <div><b>Ausgegeben:</b> <span id="sumP">–</span></div>
+      <div><b>Gespart:</b> <span id="sumS">–</span></div>
+      <div><b>%:</b> <span id="sumPct">–</span></div>
+      <div>
+        <input id="file" type="file" class="file-input" accept=".json,.csv">
+        <button id="btnImp" class="btn muted">Importieren…</button>
+        <button id="btnCsv" class="btn">Export CSV</button>
+        <button id="btnJson" class="btn">Export JSON</button>
+        <button id="btnPdf" class="btn">Export PDF</button>
+        <button id="btnClr" class="btn danger">Löschen</button>
+      </div>
+    </div>
+  </div>
+  <div class="footer">Lokal gespeichert – Version 4.3 revived</div>
+</div>
+
+<div id="printHdr">
+  <div class="brand" id="pdfTitle"></div>
+  <div class="meta" id="pdfMeta"></div>
+</div>
+<div id="toast" class="toast"></div>
+
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);
+const fmt=new Intl.NumberFormat('de-DE',{style:'currency',currency:'EUR'});
+const num=n=>isNaN(n)?'–':new Intl.NumberFormat('de-DE',{minimumFractionDigits:2,maximumFractionDigits:2}).format(n);
+const euroToNum=v=>parseFloat((''+v).replace(/[^0-9,.-]/g,'').replace(',','.'))||0;
+const euro=n=>fmt.format(n||0);
+const toast=m=>{const t=$('toast');t.textContent=m;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1600)};
+
+// Setup
+const pad=n=>(''+n).padStart(2,'0');
+const now=new Date(), defaultTitle=pad(now.getDate())+'.'+pad(now.getMonth()+1)+'.'+now.getFullYear();
+$('titleInput').value=defaultTitle;
+
+let items=JSON.parse(localStorage.getItem('einkaufsliste')||'[]');
+const save=()=>localStorage.setItem('einkaufsliste',JSON.stringify(items));
+
+function render(){
+  const body=$('body');body.innerHTML='';
+  const sumO=items.reduce((a,b)=>a+euroToNum(b.original),0);
+  const sumP=items.reduce((a,b)=>a+euroToNum(b.paid),0);
+  const saved=Math.max(sumO-sumP,0); const pct=sumO?100*saved/sumO:0;
+  $('sumO').textContent=euro(sumO);$('sumP').textContent=euro(sumP);
+  $('sumS').textContent=euro(saved);$('sumPct').textContent=num(pct)+' %';
+
+  let sorted=items.slice().sort((a,b)=>(a.location||'').localeCompare(b.location||'de',{sensitivity:'base'})||(a.store||'').localeCompare(b.store||'de',{sensitivity:'base'}));
+  let cur='';
+  sorted.forEach(it=>{
+    const key=(it.location||'')+'|'+(it.store||'');
+    if(key!==cur){
+      cur=key;
+      const trH=document.createElement('tr');
+      const td=document.createElement('td');td.colSpan=4;
+      td.innerHTML='<div class="group"><div class="label">'+[it.location,it.store].filter(Boolean).join(' – ')+'</div><button class="plus" data-add="'+key+'">+</button></div>';
+      trH.appendChild(td);body.appendChild(trH);
+    }
+    const tr=document.createElement('tr');
+    tr.innerHTML='<td>'+it.item+'</td><td class="r">'+euro(it.original)+'</td><td class="r">'+euro(it.paid)+'</td><td class="r"><button class="icon" data-del="'+it.id+'">🗑️</button></td>';
+    body.appendChild(tr);
+  });
+}
+$('addTop').onclick=()=>{
+  const rec={id:Date.now(),location:$('loc').value.trim(),store:$('store').value.trim(),item:$('item').value.trim(),original:euroToNum($('orig').value),paid:euroToNum($('paid').value)};
+  if(!rec.item){alert('Artikel fehlt.');return;}
+  items.push(rec);save();render();toast('Artikel hinzugefügt');
+};
+$('btnClr').onclick=()=>{if(confirm('Alles löschen?')){items=[];save();render();toast('Liste gelöscht');}};
+$('btnCsv').onclick=()=>{
+  if(!items.length){alert('Keine Daten');return;}
+  const csv=['Ort;Geschäft;Artikel;Originalpreis;Kaufpreis'].concat(items.map(x=>[x.location,x.store,x.item,x.original,x.paid].join(';'))).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['\uFEFF'+csv],{type:'text/csv'}));a.download='Shopping_'+$('titleInput').value+'.csv';a.click();
+};
+$('btnJson').onclick=()=>{
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(items,null,2)],{type:'application/json'}));a.download='Shopping_'+$('titleInput').value+'.json';a.click();
+};
+$('btnPdf').onclick=()=>{
+  const sumO=items.reduce((a,b)=>a+euroToNum(b.original),0);
+  const sumP=items.reduce((a,b)=>a+euroToNum(b.paid),0);
+  const saved=Math.max(sumO-sumP,0); const pct=sumO?100*saved/sumO:0;
+  $('pdfTitle').textContent='Shopping – '+$('titleInput').value;
+  $('pdfMeta').textContent='Gesamtwert: '+euro(sumO)+' | Ausgegeben: '+euro(sumP)+' | Gespart: '+euro(saved)+' ('+num(pct)+' %)';
+  window.print();
+};
+render();
+})();
+</script>
+</body>
+</html>
