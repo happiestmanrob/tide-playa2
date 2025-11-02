@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Happy Birthday! 🎉</title>
+  <style>
+    html, body {
+      margin: 0; height: 100%; background: #0b0c10; color: #fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Helvetica, Arial;
+      overflow: hidden;
+    }
+    .center-screen {
+      position: fixed; inset: 0; display: grid; place-items: center; text-align: center;
+      background: radial-gradient(1000px 700px at 50% 50%, #1b1d2b 0%, #0b0c10 70%);
+    }
+    h1 { font-size: clamp(2rem, 6vw, 5rem); margin: .3em 0; }
+    .hb-btn {
+      border: none; border-radius: 999px;
+      padding: 1rem 1.8rem; font-size: 1.3rem; font-weight: bold;
+      background: #f9d649; color: #000; cursor: pointer;
+      box-shadow: 0 8px 20px rgba(249,214,73,.3);
+      transition: transform .1s ease;
+    }
+    .hb-btn:hover { transform: scale(1.05); }
+
+    #message {
+      position: fixed; inset: 0; display: flex; justify-content: center; align-items: center;
+      font-size: clamp(1.5rem, 4vw, 3rem); color: #fff; text-shadow: 0 2px 12px rgba(0,0,0,.6);
+      opacity: 0; transition: opacity 1s ease;
+      pointer-events: none; z-index: 5;
+    }
+    #message.show { opacity: 1; }
+
+    #viewer {
+      position: fixed; inset: 0; background: #000; display: none; overflow: hidden;
+    }
+    .img-layer {
+      position: absolute; top: 50%; left: 50%; transform-origin: 0 0;
+      transform: translate(-50%, -50%) scale(1);
+    }
+    #confettiCanvas {
+      position: fixed; inset: 0; pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="confettiCanvas"></canvas>
+
+  <div id="intro" class="center-screen">
+    <div>
+      <h1>Happy Birthday 🎉</h1>
+      <button id="goBtn" class="hb-btn">Los geht’s!</button>
+    </div>
+  </div>
+
+  <div id="message">Alles Liebe zum 33. Geburtstag, mein Schatz! ❤️</div>
+
+  <div id="viewer">
+    <div id="stage"></div>
+  </div>
+
+<script>
+(function(){
+  const goBtn = document.getElementById('goBtn');
+  const intro = document.getElementById('intro');
+  const message = document.getElementById('message');
+  const viewer = document.getElementById('viewer');
+  const stage = document.getElementById('stage');
+  const confettiCanvas = document.getElementById('confettiCanvas');
+  const ctx = confettiCanvas.getContext('2d');
+
+  // ======= Konfetti =======
+  const COLORS = ['#f9d649','#ff7ac3','#7afcff','#baffc9','#ffd6a5','#b28dff'];
+  let confetti = [], rafId;
+  function resize(){ confettiCanvas.width = innerWidth; confettiCanvas.height = innerHeight; }
+  window.addEventListener('resize', resize); resize();
+  function burstConfetti(particles=180, duration=1500){
+    confetti=[];
+    for(let i=0;i<particles;i++){
+      const angle=Math.random()*Math.PI*2, speed=3+Math.random()*5;
+      confetti.push({
+        x:innerWidth/2, y:innerHeight/2,
+        vx:Math.cos(angle)*speed, vy:Math.sin(angle)*speed-4,
+        g:.15+Math.random()*.2, s:5+Math.random()*6,
+        rot:Math.random()*Math.PI, vr:(Math.random()-.5)*0.3,
+        color:COLORS[(Math.random()*COLORS.length)|0],
+        shape:Math.random()<.5?'rect':'circ', life:duration+Math.random()*500
+      });
+    }
+    const start=performance.now();
+    cancelAnimationFrame(rafId);
+    (function tick(now){
+      const t=now-start;
+      ctx.clearRect(0,0,innerWidth,innerHeight);
+      confetti.forEach(p=>{
+        p.vy+=p.g; p.x+=p.vx; p.y+=p.vy; p.rot+=p.vr; p.life-=16;
+        ctx.save(); ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+        ctx.fillStyle=p.color;
+        if(p.shape==='rect') ctx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+        else { ctx.beginPath(); ctx.arc(0,0,p.s*0.45,0,Math.PI*2); ctx.fill(); }
+        ctx.restore();
+      });
+      if(t<duration) rafId=requestAnimationFrame(tick);
+      else ctx.clearRect(0,0,innerWidth,innerHeight);
+    })(start);
+  }
+
+  // ======= Bild-Viewer mit Zoom =======
+  let imgEl=null, scale=1, minScale=1, maxScale=10, tx=0, ty=0;
+  function applyTransform(){
+    if(!imgEl) return;
+    imgEl.style.transform=`translate(${tx}px,${ty}px) scale(${scale}) translate(-50%,-50%)`;
+  }
+  function fitToScreen(){
+    const rect=stage.getBoundingClientRect();
+    const sX=(rect.width-24*2)/imgEl.naturalWidth;
+    const sY=(rect.height-24*2)/imgEl.naturalHeight;
+    minScale=Math.min(sX,sY); scale=Math.max(minScale,1);
+    tx=0; ty=0; applyTransform();
+  }
+  function wheelZoom(e){
+    e.preventDefault();
+    const rect=stage.getBoundingClientRect();
+    const mx=e.clientX-rect.left, my=e.clientY-rect.top;
+    const prev=scale, factor=Math.exp(-e.deltaY*0.0015);
+    scale=Math.min(maxScale,Math.max(minScale,scale*factor));
+    const imgX=(mx-tx-rect.width/2)/prev, imgY=(my-ty-rect.height/2)/prev;
+    tx=mx-(imgX*scale)-rect.width/2; ty=my-(imgY*scale)-rect.height/2;
+    applyTransform();
+  }
+  let dragging=false,lastX=0,lastY=0;
+  stage.addEventListener('pointerdown',e=>{dragging=true;lastX=e.clientX;lastY=e.clientY;stage.setPointerCapture(e.pointerId);});
+  stage.addEventListener('pointermove',e=>{if(!dragging)return;tx+=e.clientX-lastX;ty+=e.clientY-lastY;lastX=e.clientX;lastY=e.clientY;applyTransform();});
+  stage.addEventListener('pointerup',()=>dragging=false);
+  stage.addEventListener('wheel',wheelZoom,{passive:false});
+  stage.addEventListener('dblclick',()=>{scale=minScale;tx=0;ty=0;applyTransform();});
+  window.addEventListener('keydown',e=>{if(e.key==='f')document.documentElement.requestFullscreen();});
+
+  function loadImage(){
+    const img=new Image();
+    img.src='photo.jpg'; img.className='img-layer';
+    img.onload=()=>{stage.innerHTML='';stage.appendChild(img);imgEl=img;fitToScreen();};
+    img.onerror=()=>alert('Konnte photo.jpg nicht laden!');
+  }
+
+  // ======= Ablauf =======
+  goBtn.addEventListener('click',()=>{
+    intro.style.display='none';
+    burstConfetti();
+    message.classList.add('show');
+    setTimeout(()=>{
+      message.classList.remove('show');
+      viewer.style.display='block';
+      document.documentElement.requestFullscreen?.();
+      loadImage();
+    },2200);
+  });
+})();
+</script>
+</body>
+</html>
